@@ -66,6 +66,7 @@
     <Compile Include="Assets\CutTest.cs" />
     <Compile Include="Assets\mesh-cutter\Scripts\CutResult.cs" />
     <Compile Include="Assets\mesh-cutter\Scripts\Cutter.cs" />
+    <Compile Include="Assets\mesh-cutter\Scripts\MeshData.cs" />
     <Compile Include="Assets\mesh-cutter\Scripts\Plane.cs" />
     <Reference Include="UnityEngine">
       <HintPath>C:/Program Files/Unity/Hub/Editor/2019.4.7f1/Editor/Data/Managed/UnityEngine/UnityEngine.dll</HintPath>

@@ -7,16 +7,8 @@ namespace MeshCutter
     {
         public static CutResult Cut (Mesh mesh, Plane plane)
         {
-            Mesh aMesh = new Mesh ();
-            Mesh bMesh = new Mesh ();
-            List<Vector3> aVerticies = new List<Vector3> ();
-            List<Vector3> bVerticies = new List<Vector3> ();
-            List<Vector3> aNormals = new List<Vector3> ();
-            List<Vector3> bNormals = new List<Vector3> ();
-            List<Vector2> aUVs = new List<Vector2> ();
-            List<Vector2> bUVs = new List<Vector2> ();
-            List<int> aTriangles = new List<int> ();
-            List<int> bTriangles = new List<int> ();
+            MeshData aMeshData = new MeshData ();
+            MeshData bMeshData = new MeshData ();
 
             for (int i = 0; i < mesh.triangles.Length; i += 3)
             {
@@ -32,55 +24,65 @@ namespace MeshCutter
                     bSide > 0 &&
                     cSide > 0)
                 {//all verticies on a positive side
-                    aVerticies.Add (mesh.vertices [aVertexIndex]);
-                    aVerticies.Add (mesh.vertices [bVertexIndex]);
-                    aVerticies.Add (mesh.vertices [cVertexIndex]);
-
-                    aUVs.Add (mesh.uv [aVertexIndex]);
-                    aUVs.Add (mesh.uv [bVertexIndex]);
-                    aUVs.Add (mesh.uv [cVertexIndex]);
-
-                    aNormals.Add (mesh.normals [aVertexIndex]);
-                    aNormals.Add (mesh.normals [bVertexIndex]);
-                    aNormals.Add (mesh.normals [cVertexIndex]);
-
-                    aTriangles.Add (aTriangles.Count);
-                    aTriangles.Add (aTriangles.Count);
-                    aTriangles.Add (aTriangles.Count);
+                    aMeshData.Add (mesh.vertices [aVertexIndex], mesh.normals [aVertexIndex], mesh.uv [aVertexIndex]);
+                    aMeshData.Add (mesh.vertices [bVertexIndex], mesh.normals [bVertexIndex], mesh.uv [bVertexIndex]);
+                    aMeshData.Add (mesh.vertices [cVertexIndex], mesh.normals [cVertexIndex], mesh.uv [cVertexIndex]);
                 }
                 else if (aSide < 0 &&
                          bSide < 0 &&
                          cSide < 0)
                 {//all verticies on a negative side
-                    bVerticies.Add (mesh.vertices [aVertexIndex]);
-                    bVerticies.Add (mesh.vertices [bVertexIndex]);
-                    bVerticies.Add (mesh.vertices [cVertexIndex]);
+                    bMeshData.Add (mesh.vertices [aVertexIndex], mesh.normals [aVertexIndex], mesh.uv [aVertexIndex]);
+                    bMeshData.Add (mesh.vertices [bVertexIndex], mesh.normals [bVertexIndex], mesh.uv [bVertexIndex]);
+                    bMeshData.Add (mesh.vertices [cVertexIndex], mesh.normals [cVertexIndex], mesh.uv [cVertexIndex]);
+                }
+                else if (aSide > 0 && bSide > 0 && cSide < 0)
+                {
+                    Vector3 bcIntersection = getPlaneIntersectionPoint (plane, mesh.vertices [bVertexIndex], mesh.vertices [cVertexIndex]);
+                    Vector3 acIntersection = getPlaneIntersectionPoint (plane, mesh.vertices [aVertexIndex], mesh.vertices [cVertexIndex]);
 
-                    bUVs.Add (mesh.uv [aVertexIndex]);
-                    bUVs.Add (mesh.uv [bVertexIndex]);
-                    bUVs.Add (mesh.uv [cVertexIndex]);
+                    aMeshData.Add (mesh.vertices [aVertexIndex], mesh.normals [aVertexIndex], mesh.uv [aVertexIndex]);
+                    aMeshData.Add (mesh.vertices [bVertexIndex], mesh.normals [bVertexIndex], mesh.uv [bVertexIndex]);
+                    aMeshData.Add (bcIntersection, mesh.normals [bVertexIndex], mesh.uv [bVertexIndex]);
 
-                    bNormals.Add (mesh.normals [aVertexIndex]);
-                    bNormals.Add (mesh.normals [bVertexIndex]);
-                    bNormals.Add (mesh.normals [cVertexIndex]);
+                    aMeshData.Add (mesh.vertices [aVertexIndex], mesh.normals [aVertexIndex], mesh.uv [aVertexIndex]);
+                    aMeshData.Add (bcIntersection, mesh.normals [bVertexIndex], mesh.uv [bVertexIndex]);
+                    aMeshData.Add (acIntersection, mesh.normals [bVertexIndex], mesh.uv [bVertexIndex]);
 
-                    bTriangles.Add (bTriangles.Count);
-                    bTriangles.Add (bTriangles.Count);
-                    bTriangles.Add (bTriangles.Count);
+                    bMeshData.Add (bcIntersection, mesh.normals [bVertexIndex], mesh.uv [bVertexIndex]);
+                    bMeshData.Add (mesh.vertices [cVertexIndex], mesh.normals [cVertexIndex], mesh.uv [cVertexIndex]);
+                    bMeshData.Add (acIntersection, mesh.normals [bVertexIndex], mesh.uv [bVertexIndex]);
+                }
+                else if (aSide > 0 && bSide < 0 && cSide < 0)
+                {
+                    Vector3 abIntersection = getPlaneIntersectionPoint (plane, mesh.vertices [aVertexIndex], mesh.vertices [bVertexIndex]);
+                    Vector3 acIntersection = getPlaneIntersectionPoint (plane, mesh.vertices [aVertexIndex], mesh.vertices [cVertexIndex]);
+
+                    aMeshData.Add (mesh.vertices [aVertexIndex], mesh.normals [aVertexIndex], mesh.uv [aVertexIndex]);
+                    aMeshData.Add (abIntersection, mesh.normals [aVertexIndex], mesh.uv [aVertexIndex]);
+                    aMeshData.Add (acIntersection, mesh.normals [aVertexIndex], mesh.uv [aVertexIndex]);
+
+                    bMeshData.Add (acIntersection, mesh.normals [cVertexIndex], mesh.uv [cVertexIndex]);
+                    bMeshData.Add (abIntersection, mesh.normals [bVertexIndex], mesh.uv [bVertexIndex]);
+                    bMeshData.Add (mesh.vertices [bVertexIndex], mesh.normals [bVertexIndex], mesh.uv [bVertexIndex]);
+
+                    bMeshData.Add (acIntersection, mesh.normals [cVertexIndex], mesh.uv [cVertexIndex]);
+                    bMeshData.Add (mesh.vertices [bVertexIndex], mesh.normals [bVertexIndex], mesh.uv [bVertexIndex]);
+                    bMeshData.Add (mesh.vertices [cVertexIndex], mesh.normals [cVertexIndex], mesh.uv [cVertexIndex]);
                 }
                 //TODO...
             }
 
-            aMesh.vertices = aVerticies.ToArray ();
-            bMesh.vertices = bVerticies.ToArray ();
-            aMesh.normals = aNormals.ToArray ();
-            bMesh.normals = bNormals.ToArray ();
-            aMesh.uv = aUVs.ToArray ();
-            bMesh.uv = bUVs.ToArray ();
-            aMesh.triangles = aTriangles.ToArray ();
-            bMesh.triangles = bTriangles.ToArray ();
+            return new CutResult (aMeshData.ToMesh (), bMeshData.ToMesh ());
+        }
 
-            return new CutResult (aMesh, bMesh);
+        static Vector3 getPlaneIntersectionPoint (Plane plane, Vector3 lineStart, Vector3 lineEnd)
+        {
+            Vector3 lineDirection = lineEnd - lineStart;
+            lineDirection.Normalize ();
+            float d = Vector3.Dot (plane.Origin - lineStart, plane.Normal) / Vector3.Dot (lineDirection, plane.Normal);
+
+            return lineStart + lineDirection * d;
         }
     }
 }
