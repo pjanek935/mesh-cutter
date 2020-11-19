@@ -23,6 +23,24 @@ namespace MeshCutter
             triangles.Add (triangles.Count);
         }
 
+        public void Add2 (Vector3 vertex, Vector3 normal, Vector2 uv)
+        {
+            int index = vertices.IndexOf (vertex);
+            
+            if (index < 0)
+            {
+                vertices.Add (vertex);
+                normals.Add (normal);
+                UVs.Add (uv);
+                triangles.Add (vertices.Count - 1);
+            }
+            else
+            {
+                normals [index] = normal;
+                triangles.Add (index);
+            }
+        }
+
         public Mesh ToMesh ()
         {
             Mesh mesh = new Mesh ();
@@ -32,6 +50,11 @@ namespace MeshCutter
             mesh.triangles = triangles.ToArray ();
 
             return mesh;
+        }
+
+        public int GetVerticesCount ()
+        {
+            return vertices.Count;
         }
     }
 }
