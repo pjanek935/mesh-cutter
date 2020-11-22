@@ -53,7 +53,15 @@ namespace MeshCutter
                 }
                 else if (aSide < 0 && bSide > 0 && cSide > 0)
                 {
-
+                    sliceTriangleWhenTwoVerticesAreOnANegativeHalfSpace (aMeshData, bMeshData, mesh, plane, bVertexIndex, cVertexIndex, aVertexIndex);
+                }
+                else if (bSide < 0 && cSide > 0 && aSide > 0)
+                {
+                    sliceTriangleWhenTwoVerticesAreOnANegativeHalfSpace (aMeshData, bMeshData, mesh, plane, cVertexIndex, aVertexIndex, bVertexIndex);
+                }
+                else if (cSide < 0 && aSide > 0 && bSide > 0)
+                {
+                    sliceTriangleWhenTwoVerticesAreOnANegativeHalfSpace (aMeshData, bMeshData, mesh, plane, aVertexIndex, bVertexIndex, cVertexIndex);
                 }
                 //TODO...
             }
@@ -61,6 +69,37 @@ namespace MeshCutter
             Debug.Log ("Vertices count: " + (aMeshData.GetVerticesCount () + bMeshData.GetVerticesCount ()));
 
             return new CutResult (aMeshData.ToMesh (), bMeshData.ToMesh ());
+        }
+
+        static void sliceTriangleWhenTwoVerticesAreOnANegativeHalfSpace (MeshData aMeshData, MeshData bMeshData, Mesh originalMesh, Plane plane,
+            int aPositiveIndex, int bPositiveIndex, int cNegativeIndex)
+        {
+            Vector3 acIntersection = getPlaneIntersectionPoint (plane, originalMesh.vertices [aPositiveIndex],
+                originalMesh.vertices [cNegativeIndex]);
+            Vector3 bcIntersection = getPlaneIntersectionPoint (plane, originalMesh.vertices [bPositiveIndex],
+                originalMesh.vertices [cNegativeIndex]);
+
+            aMeshData.Add (originalMesh.vertices [aPositiveIndex],
+                originalMesh.normals [aPositiveIndex], originalMesh.uv [aPositiveIndex]);
+            aMeshData.Add (originalMesh.vertices [bPositiveIndex],
+               originalMesh.normals [bPositiveIndex], originalMesh.uv [bPositiveIndex]);
+            aMeshData.Add (acIntersection,
+                originalMesh.normals [aPositiveIndex], originalMesh.uv [aPositiveIndex]);
+
+            aMeshData.Add (acIntersection,
+                originalMesh.normals [aPositiveIndex], originalMesh.uv [aPositiveIndex]);
+            aMeshData.Add (originalMesh.vertices [bPositiveIndex],
+              originalMesh.normals [bPositiveIndex], originalMesh.uv [bPositiveIndex]);
+            aMeshData.Add (bcIntersection,
+             originalMesh.normals [bPositiveIndex], originalMesh.uv [bPositiveIndex]);
+
+            bMeshData.Add (acIntersection,
+                originalMesh.normals [aPositiveIndex], originalMesh.uv [aPositiveIndex]);
+            bMeshData.Add (bcIntersection,
+             originalMesh.normals [bPositiveIndex], originalMesh.uv [bPositiveIndex]);
+            bMeshData.Add (originalMesh.vertices [cNegativeIndex],
+             originalMesh.normals [bPositiveIndex], originalMesh.uv [bPositiveIndex]);
+
         }
 
         static void sliceTriangleWhenOneVertexIsOnAPositiveHalfSpace (MeshData aMeshData, MeshData bMeshData, Mesh originalMesh, Plane plane,
