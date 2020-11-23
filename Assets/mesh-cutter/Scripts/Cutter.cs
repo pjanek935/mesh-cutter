@@ -53,15 +53,18 @@ namespace MeshCutter
                 }
                 else if (aSide < 0 && bSide > 0 && cSide > 0)
                 {
-                    sliceTriangleWhenTwoVerticesAreOnANegativeHalfSpace (aMeshData, bMeshData, mesh, plane, bVertexIndex, cVertexIndex, aVertexIndex);
+                    sliceTriangleWhenTwoVerticesAreOnANegativeHalfSpace (aMeshData, bMeshData, mesh, plane, bVertexIndex,
+                        cVertexIndex, aVertexIndex);
                 }
                 else if (bSide < 0 && cSide > 0 && aSide > 0)
                 {
-                    sliceTriangleWhenTwoVerticesAreOnANegativeHalfSpace (aMeshData, bMeshData, mesh, plane, cVertexIndex, aVertexIndex, bVertexIndex);
+                    sliceTriangleWhenTwoVerticesAreOnANegativeHalfSpace (aMeshData, bMeshData, mesh, plane, cVertexIndex,
+                        aVertexIndex, bVertexIndex);
                 }
                 else if (cSide < 0 && aSide > 0 && bSide > 0)
                 {
-                    sliceTriangleWhenTwoVerticesAreOnANegativeHalfSpace (aMeshData, bMeshData, mesh, plane, aVertexIndex, bVertexIndex, cVertexIndex);
+                    sliceTriangleWhenTwoVerticesAreOnANegativeHalfSpace (aMeshData, bMeshData, mesh, plane, aVertexIndex,
+                        bVertexIndex, cVertexIndex);
                 }
                 //TODO...
             }
@@ -74,69 +77,92 @@ namespace MeshCutter
         static void sliceTriangleWhenTwoVerticesAreOnANegativeHalfSpace (MeshData aMeshData, MeshData bMeshData, Mesh originalMesh, Plane plane,
             int aPositiveIndex, int bPositiveIndex, int cNegativeIndex)
         {
+            float acD; //normalized distance between A and C
             Vector3 acIntersection = getPlaneIntersectionPoint (plane, originalMesh.vertices [aPositiveIndex],
-                originalMesh.vertices [cNegativeIndex]);
+                originalMesh.vertices [cNegativeIndex], out acD);
+
+            float bcD;
             Vector3 bcIntersection = getPlaneIntersectionPoint (plane, originalMesh.vertices [bPositiveIndex],
-                originalMesh.vertices [cNegativeIndex]);
+                originalMesh.vertices [cNegativeIndex], out bcD);
+
+            Vector3 acNormal = Vector3.Lerp (originalMesh.normals [aPositiveIndex], originalMesh.normals [cNegativeIndex], acD);
+            Vector2 acUV = Vector2.Lerp (originalMesh.uv [aPositiveIndex], originalMesh.uv [cNegativeIndex], acD);
+
+            Vector3 bcNormal = Vector3.Lerp (originalMesh.normals [bPositiveIndex], originalMesh.normals [cNegativeIndex], bcD);
+            Vector2 bcUV = Vector3.Lerp (originalMesh.uv [bPositiveIndex], originalMesh.uv [cNegativeIndex], bcD);
 
             aMeshData.Add (originalMesh.vertices [aPositiveIndex],
                 originalMesh.normals [aPositiveIndex], originalMesh.uv [aPositiveIndex]);
             aMeshData.Add (originalMesh.vertices [bPositiveIndex],
                originalMesh.normals [bPositiveIndex], originalMesh.uv [bPositiveIndex]);
             aMeshData.Add (acIntersection,
-                originalMesh.normals [aPositiveIndex], originalMesh.uv [aPositiveIndex]);
+                acNormal, acUV);
 
             aMeshData.Add (acIntersection,
-                originalMesh.normals [aPositiveIndex], originalMesh.uv [aPositiveIndex]);
+                acNormal, acUV);
             aMeshData.Add (originalMesh.vertices [bPositiveIndex],
               originalMesh.normals [bPositiveIndex], originalMesh.uv [bPositiveIndex]);
             aMeshData.Add (bcIntersection,
-             originalMesh.normals [bPositiveIndex], originalMesh.uv [bPositiveIndex]);
+             bcNormal, bcUV);
 
             bMeshData.Add (acIntersection,
-                originalMesh.normals [aPositiveIndex], originalMesh.uv [aPositiveIndex]);
+                acNormal, acUV);
             bMeshData.Add (bcIntersection,
-             originalMesh.normals [bPositiveIndex], originalMesh.uv [bPositiveIndex]);
+             bcNormal, bcUV);
             bMeshData.Add (originalMesh.vertices [cNegativeIndex],
-             originalMesh.normals [bPositiveIndex], originalMesh.uv [bPositiveIndex]);
-
+             originalMesh.normals [cNegativeIndex], originalMesh.uv [cNegativeIndex]);
         }
 
         static void sliceTriangleWhenOneVertexIsOnAPositiveHalfSpace (MeshData aMeshData, MeshData bMeshData, Mesh originalMesh, Plane plane,
             int aPositiveIndex, int bNegativeIndex, int cNegativeIndex)
         {
+            float abD; //normalized distance between A and B
             Vector3 abIntersection = getPlaneIntersectionPoint (plane, originalMesh.vertices [aPositiveIndex],
-                originalMesh.vertices [bNegativeIndex]);
+                originalMesh.vertices [bNegativeIndex], out abD);
+
+            float acD;
             Vector3 acIntersection = getPlaneIntersectionPoint (plane, originalMesh.vertices [aPositiveIndex],
-                originalMesh.vertices [cNegativeIndex]);
+                originalMesh.vertices [cNegativeIndex], out acD);
+
+            Vector3 abNormal = Vector3.Lerp (originalMesh.normals [aPositiveIndex], originalMesh.normals [bNegativeIndex], abD);
+            Vector2 abUV = Vector3.Lerp (originalMesh.normals [aPositiveIndex], originalMesh.normals [bNegativeIndex], abD);
+
+            Vector3 acNormal = Vector3.Lerp (originalMesh.normals [aPositiveIndex], originalMesh.normals [cNegativeIndex], acD);
+            Vector2 acUV = Vector3.Lerp (originalMesh.uv [aPositiveIndex], originalMesh.uv [cNegativeIndex], acD);
 
             aMeshData.Add (originalMesh.vertices [aPositiveIndex], 
                 originalMesh.normals [aPositiveIndex], originalMesh.uv [aPositiveIndex]);
-            aMeshData.Add (abIntersection, originalMesh.normals [aPositiveIndex],
-                originalMesh.uv [aPositiveIndex]);
-            aMeshData.Add (acIntersection, originalMesh.normals [aPositiveIndex],
-                originalMesh.uv [aPositiveIndex]);
+            aMeshData.Add (abIntersection, abNormal, abUV);
+            aMeshData.Add (acIntersection, acNormal, acUV);
 
-            bMeshData.Add (acIntersection, originalMesh.normals [cNegativeIndex],
-                originalMesh.uv [cNegativeIndex]);
-            bMeshData.Add (abIntersection, originalMesh.normals [bNegativeIndex],
-                originalMesh.uv [bNegativeIndex]);
+            bMeshData.Add (acIntersection, acNormal,
+                acUV);
+            bMeshData.Add (abIntersection, abNormal,
+                abUV);
             bMeshData.Add (originalMesh.vertices [bNegativeIndex],
                 originalMesh.normals [bNegativeIndex], originalMesh.uv [bNegativeIndex]);
 
-            bMeshData.Add (acIntersection, originalMesh.normals [cNegativeIndex],
-                originalMesh.uv [cNegativeIndex]);
+            bMeshData.Add (acIntersection, acNormal,
+                acUV);
             bMeshData.Add (originalMesh.vertices [bNegativeIndex], originalMesh.normals [bNegativeIndex],
                 originalMesh.uv [bNegativeIndex]);
             bMeshData.Add (originalMesh.vertices [cNegativeIndex], originalMesh.normals [cNegativeIndex],
                 originalMesh.uv [cNegativeIndex]);
         }
 
-        static Vector3 getPlaneIntersectionPoint (Plane plane, Vector3 lineStart, Vector3 lineEnd)
+        /// <summary>
+        /// D is a normalized distance between lineStart and lineEnd
+        /// </summary>
+        /// <param name="plane"></param>
+        /// <param name="lineStart"></param>
+        /// <param name="lineEnd"></param>
+        /// <param name="d"></param>
+        /// <returns></returns>
+        static Vector3 getPlaneIntersectionPoint (Plane plane, Vector3 lineStart, Vector3 lineEnd, out float d)
         {
             Vector3 lineDirection = lineEnd - lineStart;
             lineDirection.Normalize ();
-            float d = Vector3.Dot (plane.Origin - lineStart, plane.Normal) / Vector3.Dot (lineDirection, plane.Normal);
+            d = Vector3.Dot (plane.Origin - lineStart, plane.Normal) / Vector3.Dot (lineDirection, plane.Normal);
 
             return lineStart + lineDirection * d;
         }

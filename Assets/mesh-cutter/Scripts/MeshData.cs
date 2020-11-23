@@ -15,7 +15,7 @@ namespace MeshCutter
 
         }
 
-        public void Add (Vector3 vertex, Vector3 normal, Vector2 uv)
+        public void Add2 (Vector3 vertex, Vector3 normal, Vector2 uv)
         {
             vertices.Add (vertex);
             normals.Add (normal);
@@ -23,7 +23,7 @@ namespace MeshCutter
             triangles.Add (triangles.Count);
         }
 
-        public void Add2 (Vector3 vertex, Vector3 normal, Vector2 uv)
+        public void Add (Vector3 vertex, Vector3 normal, Vector2 uv)
         {
             int index = vertices.IndexOf (vertex);
             
@@ -37,6 +37,7 @@ namespace MeshCutter
             else
             {
                 normals [index] = normal;
+                UVs [index] = uv;
                 triangles.Add (index);
             }
         }
