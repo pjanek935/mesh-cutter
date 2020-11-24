@@ -93,22 +93,28 @@ namespace MeshCutter
 
             aMeshData.Add (originalMesh.vertices [aPositiveIndex],
                 originalMesh.normals [aPositiveIndex], originalMesh.uv [aPositiveIndex]);
+
             aMeshData.Add (originalMesh.vertices [bPositiveIndex],
                originalMesh.normals [bPositiveIndex], originalMesh.uv [bPositiveIndex]);
-            aMeshData.Add (acIntersection,
-                acNormal, acUV);
 
-            aMeshData.Add (acIntersection,
-                acNormal, acUV);
+            int edgeVertexIndex = aMeshData.Add (acIntersection, acNormal, acUV);
+            aMeshData.AddEdgeVertex (edgeVertexIndex);
+
+            edgeVertexIndex = aMeshData.Add (acIntersection, acNormal, acUV);
+            aMeshData.AddEdgeVertex (edgeVertexIndex);
+
             aMeshData.Add (originalMesh.vertices [bPositiveIndex],
               originalMesh.normals [bPositiveIndex], originalMesh.uv [bPositiveIndex]);
-            aMeshData.Add (bcIntersection,
-             bcNormal, bcUV);
 
-            bMeshData.Add (acIntersection,
-                acNormal, acUV);
-            bMeshData.Add (bcIntersection,
-             bcNormal, bcUV);
+            edgeVertexIndex = aMeshData.Add (bcIntersection, bcNormal, bcUV);
+            aMeshData.AddEdgeVertex (edgeVertexIndex);
+
+            edgeVertexIndex = bMeshData.Add (acIntersection, acNormal, acUV);
+            bMeshData.AddEdgeVertex (edgeVertexIndex);
+
+            edgeVertexIndex = bMeshData.Add (bcIntersection, bcNormal, bcUV);
+            bMeshData.AddEdgeVertex (edgeVertexIndex);
+
             bMeshData.Add (originalMesh.vertices [cNegativeIndex],
              originalMesh.normals [cNegativeIndex], originalMesh.uv [cNegativeIndex]);
         }
@@ -132,20 +138,28 @@ namespace MeshCutter
 
             aMeshData.Add (originalMesh.vertices [aPositiveIndex], 
                 originalMesh.normals [aPositiveIndex], originalMesh.uv [aPositiveIndex]);
-            aMeshData.Add (abIntersection, abNormal, abUV);
-            aMeshData.Add (acIntersection, acNormal, acUV);
 
-            bMeshData.Add (acIntersection, acNormal,
-                acUV);
-            bMeshData.Add (abIntersection, abNormal,
-                abUV);
+            int edgeVertexIndex = aMeshData.Add (abIntersection, abNormal, abUV);
+            aMeshData.AddEdgeVertex (edgeVertexIndex);
+
+            edgeVertexIndex = aMeshData.Add (acIntersection, acNormal, acUV);
+            aMeshData.AddEdgeVertex (edgeVertexIndex);
+
+            edgeVertexIndex = bMeshData.Add (acIntersection, acNormal, acUV);
+            bMeshData.AddEdgeVertex (edgeVertexIndex);
+
+            edgeVertexIndex = bMeshData.Add (abIntersection, abNormal, abUV);
+            bMeshData.AddEdgeVertex (edgeVertexIndex);
+
             bMeshData.Add (originalMesh.vertices [bNegativeIndex],
                 originalMesh.normals [bNegativeIndex], originalMesh.uv [bNegativeIndex]);
 
-            bMeshData.Add (acIntersection, acNormal,
-                acUV);
+            edgeVertexIndex = bMeshData.Add (acIntersection, acNormal, acUV);
+            bMeshData.AddEdgeVertex (edgeVertexIndex);
+
             bMeshData.Add (originalMesh.vertices [bNegativeIndex], originalMesh.normals [bNegativeIndex],
                 originalMesh.uv [bNegativeIndex]);
+
             bMeshData.Add (originalMesh.vertices [cNegativeIndex], originalMesh.normals [cNegativeIndex],
                 originalMesh.uv [cNegativeIndex]);
         }
