@@ -64,6 +64,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Assets\CutTest.cs" />
+    <Compile Include="Assets\DebugMeshDataRenderer.cs" />
     <Compile Include="Assets\mesh-cutter\Scripts\CutResult.cs" />
     <Compile Include="Assets\mesh-cutter\Scripts\Cutter.cs" />
     <Compile Include="Assets\mesh-cutter\Scripts\MeshData.cs" />

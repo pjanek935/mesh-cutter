@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace MeshCutter
@@ -9,7 +10,6 @@ namespace MeshCutter
         List<Vector3> normals = new List<Vector3> ();
         List<Vector2> UVs = new List<Vector2> ();
         List<int> triangles = new List<int> ();
-        List<int> edgeVertecies = new List<int> ();
 
         public MeshData ()
         {
@@ -26,7 +26,7 @@ namespace MeshCutter
             return vertices.Count - 1;
         }
 
-        public int Add (Vector3 vertex, Vector3 normal, Vector2 uv)
+        public void Add (Vector3 vertex, Vector3 normal, Vector2 uv)
         {
             int index = vertices.IndexOf (vertex);
             bool addNew = true;
@@ -51,40 +51,48 @@ namespace MeshCutter
             {
                 triangles.Add (index);
             }
-
-            return index;
         }
 
-        public void AddEdgeVertex (int vertexIndex)
-        {
-            if (edgeVertecies.IndexOf (vertexIndex) == -1)
-            {
-                edgeVertecies.Add (vertexIndex);
-            }
-        }
-
-        public void FillMeshWithEdgeVerteciesData ()
+        public void FillMeshWithEdgeVerteciesData (List <Vector3> edgeVertecies, float side, Plane plane)
         {
             if (edgeVertecies.Count == 0 || vertices.Count == 0) return;
-            //edgeVertecies.Sort ();
-            //TODO
+            
             Vector3 center = Vector3.zero;
-            edgeVertecies.ForEach (x => center += vertices [x]);
+            edgeVertecies.ForEach (x => center += x);
             center /= edgeVertecies.Count;
 
+            Vector3 normal = side > 0 ? plane.Normal : -plane.Normal;
+
             vertices.Add (center);
-            normals.Add (Vector3.up);
+            normals.Add (normal);
             UVs.Add (Vector3.zero);
             int centerIndex = vertices.Count - 1;
 
-            for (int i = 0; i < edgeVertecies.Count - 1; i++)
+            for (int i = 0; i < edgeVertecies.Count; i += 2)
             {
-                triangles.Add (edgeVertecies [i]);
-                triangles.Add (edgeVertecies [i + 1]);
-                triangles.Add (centerIndex);
-            }
+                vertices.Add (edgeVertecies [i]);
+                normals.Add (normal);
+                UVs.Add (Vector3.zero);
 
-            edgeVertecies.Clear ();
+                vertices.Add (edgeVertecies [i + 1]);
+                normals.Add (normal);
+                UVs.Add (Vector3.zero);
+
+                if (side > 0)
+                {
+                    triangles.Add (centerIndex);
+                    triangles.Add (vertices.Count - 2);
+                    triangles.Add (vertices.Count - 1);
+                }
+                else
+                {
+                   
+
+                    triangles.Add (centerIndex);
+                    triangles.Add (vertices.Count - 1);
+                    triangles.Add (vertices.Count - 2);
+                }
+            }
         }
 
         static bool isNearlyEqual (float f1, float f2)
@@ -110,9 +118,9 @@ namespace MeshCutter
                 isNearlyEqual (v1.y, v2.y) && isNearlyEqual (v1.z, v2.z);
         }
 
-        public Mesh ToMesh ()
+        public Mesh ToMesh (List <Vector3> edgeVertecies, float side, Plane plane)
         {
-            FillMeshWithEdgeVerteciesData ();
+            FillMeshWithEdgeVerteciesData (edgeVertecies, side, plane);
 
             Mesh mesh = new Mesh ();
             mesh.vertices = vertices.ToArray ();
