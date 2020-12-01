@@ -17,60 +17,115 @@ namespace MeshCutter
                 int bVertexIndex = mesh.triangles [i + 1];
                 int cVertexIndex = mesh.triangles [i + 2];
 
-                float aSide = plane.GetSide (mesh.vertices [aVertexIndex]);
-                float bSide = plane.GetSide (mesh.vertices [bVertexIndex]);
-                float cSide = plane.GetSide (mesh.vertices [cVertexIndex]);
+                PlaneSide aSide = plane.GetSide (mesh.vertices [aVertexIndex]);
+                PlaneSide bSide = plane.GetSide (mesh.vertices [bVertexIndex]);
+                PlaneSide cSide = plane.GetSide (mesh.vertices [cVertexIndex]);
 
-                if (aSide > 0 &&
-                    bSide > 0 &&
-                    cSide > 0)
+                if (aSide == PlaneSide.POSITIVE &&
+                    bSide == PlaneSide.POSITIVE &&
+                    cSide == PlaneSide.POSITIVE)
                 {//all verticies on a positive side
                     aMeshData.Add (mesh.vertices [aVertexIndex], mesh.normals [aVertexIndex], mesh.uv [aVertexIndex]);
                     aMeshData.Add (mesh.vertices [bVertexIndex], mesh.normals [bVertexIndex], mesh.uv [bVertexIndex]);
                     aMeshData.Add (mesh.vertices [cVertexIndex], mesh.normals [cVertexIndex], mesh.uv [cVertexIndex]);
                 }
-                else if (aSide < 0 &&
-                         bSide < 0 &&
-                         cSide < 0)
+                else if (aSide == PlaneSide.NEGATIVE &&
+                         bSide == PlaneSide.NEGATIVE &&
+                         cSide == PlaneSide.NEGATIVE)
                 {//all verticies on a negative side
                     bMeshData.Add (mesh.vertices [aVertexIndex], mesh.normals [aVertexIndex], mesh.uv [aVertexIndex]);
                     bMeshData.Add (mesh.vertices [bVertexIndex], mesh.normals [bVertexIndex], mesh.uv [bVertexIndex]);
                     bMeshData.Add (mesh.vertices [cVertexIndex], mesh.normals [cVertexIndex], mesh.uv [cVertexIndex]);
                 }
-                else if (aSide > 0 && bSide < 0 && cSide < 0)
+                else if (aSide == PlaneSide.POSITIVE && bSide == PlaneSide.NEGATIVE && cSide == PlaneSide.NEGATIVE)
                 {
                     sliceTriangleWhenOneVertexIsOnAPositiveHalfSpace (aMeshData, bMeshData, mesh,
                         plane, aVertexIndex, bVertexIndex, cVertexIndex, sliceEdgeVertecies);
                 }
-                else if (bSide > 0 && cSide < 0 && aSide < 0)
+                else if (bSide == PlaneSide.POSITIVE && cSide == PlaneSide.NEGATIVE && aSide == PlaneSide.NEGATIVE)
                 {
                     sliceTriangleWhenOneVertexIsOnAPositiveHalfSpace (aMeshData, bMeshData, mesh, 
                         plane, bVertexIndex, cVertexIndex, aVertexIndex, sliceEdgeVertecies);
                 }
-                else if (cSide > 0 && aSide < 0 && bSide < 0)
+                else if (cSide == PlaneSide.POSITIVE && aSide == PlaneSide.NEGATIVE && bSide == PlaneSide.NEGATIVE)
                 {
                     sliceTriangleWhenOneVertexIsOnAPositiveHalfSpace (aMeshData, bMeshData, mesh,
                         plane, cVertexIndex, aVertexIndex, bVertexIndex, sliceEdgeVertecies);
                 }
-                else if (aSide < 0 && bSide > 0 && cSide > 0)
+                else if (aSide == PlaneSide.NEGATIVE && bSide == PlaneSide.POSITIVE && cSide == PlaneSide.POSITIVE)
                 {
                     sliceTriangleWhenTwoVerticesAreOnAPositiveHalfSpace (aMeshData, bMeshData, mesh, plane, bVertexIndex,
                         cVertexIndex, aVertexIndex, sliceEdgeVertecies);
                 }
-                else if (bSide < 0 && cSide > 0 && aSide > 0)
+                else if (bSide == PlaneSide.NEGATIVE && cSide == PlaneSide.POSITIVE && aSide == PlaneSide.POSITIVE)
                 {
                     sliceTriangleWhenTwoVerticesAreOnAPositiveHalfSpace (aMeshData, bMeshData, mesh, plane, cVertexIndex,
                         aVertexIndex, bVertexIndex, sliceEdgeVertecies);
                 }
-                else if (cSide < 0 && aSide > 0 && bSide > 0)
+                else if (cSide == PlaneSide.NEGATIVE && aSide == PlaneSide.POSITIVE && bSide == PlaneSide.POSITIVE)
                 {
                     sliceTriangleWhenTwoVerticesAreOnAPositiveHalfSpace (aMeshData, bMeshData, mesh, plane, aVertexIndex,
                         bVertexIndex, cVertexIndex, sliceEdgeVertecies);
                 }
-                //TODO...
-            }
+                else if (aSide == PlaneSide.ON_PLANE)
+                {
+                    if (bSide == PlaneSide.POSITIVE && cSide == PlaneSide.POSITIVE)
+                    {
+                        //TODO...
+                    }
+                    else if (bSide == PlaneSide.NEGATIVE && cSide == PlaneSide.NEGATIVE)
+                    {
+                        //TODO...
+                    }
+                    else if (bSide == PlaneSide.POSITIVE && cSide == PlaneSide.NEGATIVE)
+                    {
+                        //TODO...
+                    }
+                    else if (bSide == PlaneSide.NEGATIVE && cSide == PlaneSide.POSITIVE)
+                    {
+                        //TODO...
+                    }
 
-            Debug.Log ("Vertices count: " + (aMeshData.GetVerticesCount () + bMeshData.GetVerticesCount ()));
+                }
+                else if (bSide == PlaneSide.ON_PLANE)
+                {
+                    if (cSide == PlaneSide.POSITIVE && aSide == PlaneSide.POSITIVE)
+                    {
+                        //TODO...
+                    }
+                    else if (cSide == PlaneSide.NEGATIVE && aSide == PlaneSide.NEGATIVE)
+                    {
+                        //TODO...
+                    }
+                    else if (cSide == PlaneSide.POSITIVE && aSide == PlaneSide.NEGATIVE)
+                    {
+                        //TODO...
+                    }
+                    else if (cSide == PlaneSide.NEGATIVE && aSide == PlaneSide.POSITIVE)
+                    {
+                        //TODO...
+                    }
+                }
+                else if (cSide == PlaneSide.ON_PLANE)
+                {
+                    if (aSide == PlaneSide.POSITIVE && bSide == PlaneSide.POSITIVE)
+                    {
+                        //TODO...
+                    }
+                    else if (aSide == PlaneSide.NEGATIVE && bSide == PlaneSide.NEGATIVE)
+                    {
+                        //TODO...
+                    }
+                    else if (aSide == PlaneSide.POSITIVE && bSide == PlaneSide.NEGATIVE)
+                    {
+                        //TODO...
+                    }
+                    else if (aSide == PlaneSide.NEGATIVE && bSide == PlaneSide.POSITIVE)
+                    {
+                        //TODO...
+                    }
+                }
+            }
 
             return new CutResult (aMeshData.ToMesh (sliceEdgeVertecies, 1, plane),
                 bMeshData.ToMesh (sliceEdgeVertecies , - 1, plane));

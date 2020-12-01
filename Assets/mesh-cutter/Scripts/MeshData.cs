@@ -86,8 +86,6 @@ namespace MeshCutter
                 }
                 else
                 {
-                   
-
                     triangles.Add (centerIndex);
                     triangles.Add (vertices.Count - 1);
                     triangles.Add (vertices.Count - 2);

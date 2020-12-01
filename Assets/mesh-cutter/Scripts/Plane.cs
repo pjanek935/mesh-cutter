@@ -13,9 +13,25 @@ namespace MeshCutter
         /// </summary>
         /// <param name="point"></param>
         /// <returns></returns>
-        public float GetSide (Vector3 point)
+        public PlaneSide GetSide (Vector3 point)
         {
-            return Vector3.Dot (Normal, Origin - point);
+            PlaneSide result = PlaneSide.INVALID;
+            float dot = Vector3.Dot (Normal, Origin - point);
+
+            if (dot == 0)
+            {
+                result = PlaneSide.ON_PLANE;
+            }
+            else if (dot > 0)
+            {
+                result = PlaneSide.POSITIVE;
+            }
+            else
+            {
+                result = PlaneSide.NEGATIVE;
+            }
+
+            return result;
         }
     }
 }

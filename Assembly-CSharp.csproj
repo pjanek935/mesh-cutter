@@ -67,6 +67,7 @@
     <Compile Include="Assets\DebugMeshDataRenderer.cs" />
     <Compile Include="Assets\mesh-cutter\Scripts\CutResult.cs" />
     <Compile Include="Assets\mesh-cutter\Scripts\Cutter.cs" />
+    <Compile Include="Assets\mesh-cutter\Scripts\Enums.cs" />
     <Compile Include="Assets\mesh-cutter\Scripts\MeshData.cs" />
     <Compile Include="Assets\mesh-cutter\Scripts\Plane.cs" />
     <Reference Include="UnityEngine">
