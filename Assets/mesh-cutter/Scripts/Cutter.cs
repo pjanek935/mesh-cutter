@@ -70,59 +70,77 @@ namespace MeshCutter
                 else if (aSide == PlaneSide.ON_PLANE)
                 {
                     if (bSide == PlaneSide.POSITIVE && cSide == PlaneSide.POSITIVE)
-                    {
-                        //TODO...
+                    {//treat as all vertecies are on a postive halfspace
+                        aMeshData.Add (mesh.vertices [aVertexIndex], mesh.normals [aVertexIndex], mesh.uv [aVertexIndex]);
+                        aMeshData.Add (mesh.vertices [bVertexIndex], mesh.normals [bVertexIndex], mesh.uv [bVertexIndex]);
+                        aMeshData.Add (mesh.vertices [cVertexIndex], mesh.normals [cVertexIndex], mesh.uv [cVertexIndex]);
                     }
                     else if (bSide == PlaneSide.NEGATIVE && cSide == PlaneSide.NEGATIVE)
-                    {
-                        //TODO...
+                    {//treat as all vertecies are on a negative halfspace
+                        bMeshData.Add (mesh.vertices [aVertexIndex], mesh.normals [aVertexIndex], mesh.uv [aVertexIndex]);
+                        bMeshData.Add (mesh.vertices [bVertexIndex], mesh.normals [bVertexIndex], mesh.uv [bVertexIndex]);
+                        bMeshData.Add (mesh.vertices [cVertexIndex], mesh.normals [cVertexIndex], mesh.uv [cVertexIndex]);
                     }
                     else if (bSide == PlaneSide.POSITIVE && cSide == PlaneSide.NEGATIVE)
                     {
-                        //TODO...
+                        sliceTriangleWhenOneVertexIsOnAPlaneAndNextIsOnAPositiveHalfspace (aMeshData, bMeshData, mesh, plane, aVertexIndex, bVertexIndex,
+                            cVertexIndex, sliceEdgeVertecies);
                     }
                     else if (bSide == PlaneSide.NEGATIVE && cSide == PlaneSide.POSITIVE)
                     {
-                        //TODO...
+                        sliceTriangleWhenOneVertexIsOnAPlaneAndNextIsOnANegativeHalfspace (aMeshData, bMeshData, mesh, plane, aVertexIndex, 
+                            bVertexIndex, cVertexIndex, sliceEdgeVertecies);
                     }
 
                 }
                 else if (bSide == PlaneSide.ON_PLANE)
                 {
                     if (cSide == PlaneSide.POSITIVE && aSide == PlaneSide.POSITIVE)
-                    {
-                        //TODO...
+                    {//treat as all vertecies are on a postive halfspace
+                        aMeshData.Add (mesh.vertices [aVertexIndex], mesh.normals [aVertexIndex], mesh.uv [aVertexIndex]);
+                        aMeshData.Add (mesh.vertices [bVertexIndex], mesh.normals [bVertexIndex], mesh.uv [bVertexIndex]);
+                        aMeshData.Add (mesh.vertices [cVertexIndex], mesh.normals [cVertexIndex], mesh.uv [cVertexIndex]);
                     }
                     else if (cSide == PlaneSide.NEGATIVE && aSide == PlaneSide.NEGATIVE)
-                    {
-                        //TODO...
+                    {//treat as all vertecies are on a negative halfspace
+                        bMeshData.Add (mesh.vertices [aVertexIndex], mesh.normals [aVertexIndex], mesh.uv [aVertexIndex]);
+                        bMeshData.Add (mesh.vertices [bVertexIndex], mesh.normals [bVertexIndex], mesh.uv [bVertexIndex]);
+                        bMeshData.Add (mesh.vertices [cVertexIndex], mesh.normals [cVertexIndex], mesh.uv [cVertexIndex]);
                     }
                     else if (cSide == PlaneSide.POSITIVE && aSide == PlaneSide.NEGATIVE)
                     {
-                        //TODO...
+                        sliceTriangleWhenOneVertexIsOnAPlaneAndNextIsOnAPositiveHalfspace (aMeshData, bMeshData, mesh, plane,
+                            bVertexIndex, cVertexIndex, aVertexIndex, sliceEdgeVertecies);
                     }
                     else if (cSide == PlaneSide.NEGATIVE && aSide == PlaneSide.POSITIVE)
                     {
-                        //TODO...
+                        sliceTriangleWhenOneVertexIsOnAPlaneAndNextIsOnANegativeHalfspace (aMeshData, bMeshData, mesh, plane, bVertexIndex,
+                           cVertexIndex, aVertexIndex, sliceEdgeVertecies);
                     }
                 }
                 else if (cSide == PlaneSide.ON_PLANE)
                 {
                     if (aSide == PlaneSide.POSITIVE && bSide == PlaneSide.POSITIVE)
-                    {
-                        //TODO...
+                    {//treat as all vertecies are on a postive halfspace
+                        aMeshData.Add (mesh.vertices [aVertexIndex], mesh.normals [aVertexIndex], mesh.uv [aVertexIndex]);
+                        aMeshData.Add (mesh.vertices [bVertexIndex], mesh.normals [bVertexIndex], mesh.uv [bVertexIndex]);
+                        aMeshData.Add (mesh.vertices [cVertexIndex], mesh.normals [cVertexIndex], mesh.uv [cVertexIndex]);
                     }
                     else if (aSide == PlaneSide.NEGATIVE && bSide == PlaneSide.NEGATIVE)
-                    {
-                        //TODO...
+                    {//treat as all vertecies are on a negative halfspace
+                        bMeshData.Add (mesh.vertices [aVertexIndex], mesh.normals [aVertexIndex], mesh.uv [aVertexIndex]);
+                        bMeshData.Add (mesh.vertices [bVertexIndex], mesh.normals [bVertexIndex], mesh.uv [bVertexIndex]);
+                        bMeshData.Add (mesh.vertices [cVertexIndex], mesh.normals [cVertexIndex], mesh.uv [cVertexIndex]);
                     }
                     else if (aSide == PlaneSide.POSITIVE && bSide == PlaneSide.NEGATIVE)
                     {
-                        //TODO...
+                        sliceTriangleWhenOneVertexIsOnAPlaneAndNextIsOnAPositiveHalfspace (aMeshData, bMeshData, mesh, plane,
+                            cVertexIndex, aVertexIndex, bVertexIndex, sliceEdgeVertecies);
                     }
                     else if (aSide == PlaneSide.NEGATIVE && bSide == PlaneSide.POSITIVE)
                     {
-                        //TODO...
+                        sliceTriangleWhenOneVertexIsOnAPlaneAndNextIsOnANegativeHalfspace (aMeshData, bMeshData, mesh, plane, cVertexIndex,
+                           aVertexIndex, bVertexIndex, sliceEdgeVertecies);
                     }
                 }
             }
@@ -203,6 +221,59 @@ namespace MeshCutter
                 originalMesh.uv [bNegativeIndex]);
             bMeshData.Add (originalMesh.vertices [cNegativeIndex], originalMesh.normals [cNegativeIndex],
                 originalMesh.uv [cNegativeIndex]);
+        }
+
+        static void sliceTriangleWhenOneVertexIsOnAPlaneAndNextIsOnAPositiveHalfspace (MeshData aMeshData, MeshData bMeshData, Mesh originalMesh, Plane plane,
+            int aOnPlaneIndex, int bPositiveIndex, int cNegativeIndex, List<Vector3> sliceEdgeVertecies)
+        {
+            float bcD; //normalized distance between B and C
+            Vector3 bcIntersection = getPlaneIntersectionPoint (plane, originalMesh.vertices [bPositiveIndex],
+                originalMesh.vertices [cNegativeIndex], out bcD);
+
+            Vector3 bcNormal = Vector3.Lerp (originalMesh.normals [bPositiveIndex], originalMesh.normals [cNegativeIndex], bcD);
+            Vector2 bcUV = Vector3.Lerp (originalMesh.normals [bPositiveIndex], originalMesh.normals [cNegativeIndex], bcD);
+
+            sliceEdgeVertecies.Add (originalMesh.vertices [aOnPlaneIndex]);
+            sliceEdgeVertecies.Add (bcIntersection);
+
+            aMeshData.Add (originalMesh.vertices [aOnPlaneIndex],
+               originalMesh.normals [aOnPlaneIndex], originalMesh.uv [aOnPlaneIndex]);
+            aMeshData.Add (originalMesh.vertices [bPositiveIndex],
+                originalMesh.normals [bPositiveIndex], originalMesh.uv [bPositiveIndex]);
+            aMeshData.Add (bcIntersection, bcNormal, bcUV);
+
+            bMeshData.Add (originalMesh.vertices [aOnPlaneIndex],
+               originalMesh.normals [aOnPlaneIndex], originalMesh.uv [aOnPlaneIndex]);
+            bMeshData.Add (bcIntersection, bcNormal, bcUV);
+            bMeshData.Add (originalMesh.vertices [cNegativeIndex],
+                originalMesh.normals [cNegativeIndex], originalMesh.uv [cNegativeIndex]);
+        }
+
+        static void sliceTriangleWhenOneVertexIsOnAPlaneAndNextIsOnANegativeHalfspace (MeshData aMeshData, MeshData bMeshData, Mesh originalMesh, Plane plane,
+            int aOnPlaneIndex, int bNegativeIndex, int cPositiveIndex, List<Vector3> sliceEdgeVertecies)
+        {
+            float bcD; //normalized distance between B and C
+            Vector3 bcIntersection = getPlaneIntersectionPoint (plane, originalMesh.vertices [bNegativeIndex],
+                originalMesh.vertices [cPositiveIndex], out bcD);
+
+            Vector3 bcNormal = Vector3.Lerp (originalMesh.normals [bNegativeIndex], originalMesh.normals [cPositiveIndex], bcD);
+            Vector2 bcUV = Vector3.Lerp (originalMesh.normals [bNegativeIndex], originalMesh.normals [cPositiveIndex], bcD);
+
+            sliceEdgeVertecies.Add (bcIntersection);
+            sliceEdgeVertecies.Add (originalMesh.vertices [aOnPlaneIndex]);
+
+            aMeshData.Add (originalMesh.vertices [cPositiveIndex],
+               originalMesh.normals [cPositiveIndex], originalMesh.uv [cPositiveIndex]);
+            aMeshData.Add (originalMesh.vertices [aOnPlaneIndex],
+                originalMesh.normals [aOnPlaneIndex], originalMesh.uv [aOnPlaneIndex]);
+            aMeshData.Add (bcIntersection, bcNormal, bcUV);
+
+            bMeshData.Add (originalMesh.vertices [aOnPlaneIndex],
+               originalMesh.normals [aOnPlaneIndex], originalMesh.uv [aOnPlaneIndex]);
+            bMeshData.Add (originalMesh.vertices [bNegativeIndex],
+                originalMesh.normals [bNegativeIndex], originalMesh.uv [bNegativeIndex]);
+            bMeshData.Add (bcIntersection, bcNormal, bcUV);
+            
         }
 
         /// <summary>
