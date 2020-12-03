@@ -44,7 +44,7 @@ namespace MeshCutter
                 }
                 else if (bSide == PlaneSide.POSITIVE && cSide == PlaneSide.NEGATIVE && aSide == PlaneSide.NEGATIVE)
                 {
-                    sliceTriangleWhenOneVertexIsOnAPositiveHalfSpace (aMeshData, bMeshData, mesh, 
+                    sliceTriangleWhenOneVertexIsOnAPositiveHalfSpace (aMeshData, bMeshData, mesh,
                         plane, bVertexIndex, cVertexIndex, aVertexIndex, sliceEdgeVertecies);
                 }
                 else if (cSide == PlaneSide.POSITIVE && aSide == PlaneSide.NEGATIVE && bSide == PlaneSide.NEGATIVE)
@@ -67,81 +67,137 @@ namespace MeshCutter
                     sliceTriangleWhenTwoVerticesAreOnAPositiveHalfSpace (aMeshData, bMeshData, mesh, plane, aVertexIndex,
                         bVertexIndex, cVertexIndex, sliceEdgeVertecies);
                 }
+                else if (aSide == PlaneSide.ON_PLANE && bSide == PlaneSide.POSITIVE && cSide == PlaneSide.POSITIVE)
+                {//treat as all vertecies are on a postive halfspace
+                    aMeshData.Add (mesh.vertices [aVertexIndex], mesh.normals [aVertexIndex], mesh.uv [aVertexIndex]);
+                    aMeshData.Add (mesh.vertices [bVertexIndex], mesh.normals [bVertexIndex], mesh.uv [bVertexIndex]);
+                    aMeshData.Add (mesh.vertices [cVertexIndex], mesh.normals [cVertexIndex], mesh.uv [cVertexIndex]);
+
+                    sliceEdgeVertecies.Add (mesh.vertices [aVertexIndex]);
+                }
+                else if (aSide == PlaneSide.ON_PLANE && bSide == PlaneSide.NEGATIVE && cSide == PlaneSide.NEGATIVE)
+                {//treat as all vertecies are on a negative halfspace
+                    bMeshData.Add (mesh.vertices [aVertexIndex], mesh.normals [aVertexIndex], mesh.uv [aVertexIndex]);
+                    bMeshData.Add (mesh.vertices [bVertexIndex], mesh.normals [bVertexIndex], mesh.uv [bVertexIndex]);
+                    bMeshData.Add (mesh.vertices [cVertexIndex], mesh.normals [cVertexIndex], mesh.uv [cVertexIndex]);
+
+                    sliceEdgeVertecies.Add (mesh.vertices [aVertexIndex]);
+                }
+                else if (aSide == PlaneSide.ON_PLANE && bSide == PlaneSide.POSITIVE && cSide == PlaneSide.NEGATIVE)
+                {
+                    sliceTriangleWhenOneVertexIsOnAPlaneAndNextIsOnAPositiveHalfspace (aMeshData, bMeshData, mesh, plane, aVertexIndex, bVertexIndex,
+                            cVertexIndex, sliceEdgeVertecies);
+                }
                 else if (aSide == PlaneSide.ON_PLANE)
                 {
-                    if (bSide == PlaneSide.POSITIVE && cSide == PlaneSide.POSITIVE)
-                    {//treat as all vertecies are on a postive halfspace
-                        aMeshData.Add (mesh.vertices [aVertexIndex], mesh.normals [aVertexIndex], mesh.uv [aVertexIndex]);
-                        aMeshData.Add (mesh.vertices [bVertexIndex], mesh.normals [bVertexIndex], mesh.uv [bVertexIndex]);
-                        aMeshData.Add (mesh.vertices [cVertexIndex], mesh.normals [cVertexIndex], mesh.uv [cVertexIndex]);
-                    }
-                    else if (bSide == PlaneSide.NEGATIVE && cSide == PlaneSide.NEGATIVE)
-                    {//treat as all vertecies are on a negative halfspace
-                        bMeshData.Add (mesh.vertices [aVertexIndex], mesh.normals [aVertexIndex], mesh.uv [aVertexIndex]);
-                        bMeshData.Add (mesh.vertices [bVertexIndex], mesh.normals [bVertexIndex], mesh.uv [bVertexIndex]);
-                        bMeshData.Add (mesh.vertices [cVertexIndex], mesh.normals [cVertexIndex], mesh.uv [cVertexIndex]);
-                    }
-                    else if (bSide == PlaneSide.POSITIVE && cSide == PlaneSide.NEGATIVE)
-                    {
-                        sliceTriangleWhenOneVertexIsOnAPlaneAndNextIsOnAPositiveHalfspace (aMeshData, bMeshData, mesh, plane, aVertexIndex, bVertexIndex,
-                            cVertexIndex, sliceEdgeVertecies);
-                    }
-                    else if (bSide == PlaneSide.NEGATIVE && cSide == PlaneSide.POSITIVE)
-                    {
-                        sliceTriangleWhenOneVertexIsOnAPlaneAndNextIsOnANegativeHalfspace (aMeshData, bMeshData, mesh, plane, aVertexIndex, 
+                    sliceTriangleWhenOneVertexIsOnAPlaneAndNextIsOnANegativeHalfspace (aMeshData, bMeshData, mesh, plane, aVertexIndex,
                             bVertexIndex, cVertexIndex, sliceEdgeVertecies);
-                    }
+                }
+                else if (bSide == PlaneSide.ON_PLANE && cSide == PlaneSide.POSITIVE && aSide == PlaneSide.POSITIVE)
+                {//treat as all vertecies are on a postive halfspace
+                    aMeshData.Add (mesh.vertices [aVertexIndex], mesh.normals [aVertexIndex], mesh.uv [aVertexIndex]);
+                    aMeshData.Add (mesh.vertices [bVertexIndex], mesh.normals [bVertexIndex], mesh.uv [bVertexIndex]);
+                    aMeshData.Add (mesh.vertices [cVertexIndex], mesh.normals [cVertexIndex], mesh.uv [cVertexIndex]);
 
+                    sliceEdgeVertecies.Add (mesh.vertices [bVertexIndex]);
                 }
-                else if (bSide == PlaneSide.ON_PLANE)
+                else if (bSide == PlaneSide.ON_PLANE && cSide == PlaneSide.NEGATIVE && aSide == PlaneSide.NEGATIVE)
+                {//treat as all vertecies are on a negative halfspace
+                    bMeshData.Add (mesh.vertices [aVertexIndex], mesh.normals [aVertexIndex], mesh.uv [aVertexIndex]);
+                    bMeshData.Add (mesh.vertices [bVertexIndex], mesh.normals [bVertexIndex], mesh.uv [bVertexIndex]);
+                    bMeshData.Add (mesh.vertices [cVertexIndex], mesh.normals [cVertexIndex], mesh.uv [cVertexIndex]);
+
+                    sliceEdgeVertecies.Add (mesh.vertices [bVertexIndex]);
+                }
+                else if (bSide == PlaneSide.ON_PLANE && cSide == PlaneSide.POSITIVE && aSide == PlaneSide.NEGATIVE)
                 {
-                    if (cSide == PlaneSide.POSITIVE && aSide == PlaneSide.POSITIVE)
-                    {//treat as all vertecies are on a postive halfspace
-                        aMeshData.Add (mesh.vertices [aVertexIndex], mesh.normals [aVertexIndex], mesh.uv [aVertexIndex]);
-                        aMeshData.Add (mesh.vertices [bVertexIndex], mesh.normals [bVertexIndex], mesh.uv [bVertexIndex]);
-                        aMeshData.Add (mesh.vertices [cVertexIndex], mesh.normals [cVertexIndex], mesh.uv [cVertexIndex]);
-                    }
-                    else if (cSide == PlaneSide.NEGATIVE && aSide == PlaneSide.NEGATIVE)
-                    {//treat as all vertecies are on a negative halfspace
-                        bMeshData.Add (mesh.vertices [aVertexIndex], mesh.normals [aVertexIndex], mesh.uv [aVertexIndex]);
-                        bMeshData.Add (mesh.vertices [bVertexIndex], mesh.normals [bVertexIndex], mesh.uv [bVertexIndex]);
-                        bMeshData.Add (mesh.vertices [cVertexIndex], mesh.normals [cVertexIndex], mesh.uv [cVertexIndex]);
-                    }
-                    else if (cSide == PlaneSide.POSITIVE && aSide == PlaneSide.NEGATIVE)
-                    {
-                        sliceTriangleWhenOneVertexIsOnAPlaneAndNextIsOnAPositiveHalfspace (aMeshData, bMeshData, mesh, plane,
+                    sliceTriangleWhenOneVertexIsOnAPlaneAndNextIsOnAPositiveHalfspace (aMeshData, bMeshData, mesh, plane,
                             bVertexIndex, cVertexIndex, aVertexIndex, sliceEdgeVertecies);
-                    }
-                    else if (cSide == PlaneSide.NEGATIVE && aSide == PlaneSide.POSITIVE)
-                    {
-                        sliceTriangleWhenOneVertexIsOnAPlaneAndNextIsOnANegativeHalfspace (aMeshData, bMeshData, mesh, plane, bVertexIndex,
-                           cVertexIndex, aVertexIndex, sliceEdgeVertecies);
-                    }
                 }
-                else if (cSide == PlaneSide.ON_PLANE)
+                else if (bSide == PlaneSide.ON_PLANE && cSide == PlaneSide.NEGATIVE && aSide == PlaneSide.POSITIVE)
                 {
-                    if (aSide == PlaneSide.POSITIVE && bSide == PlaneSide.POSITIVE)
-                    {//treat as all vertecies are on a postive halfspace
-                        aMeshData.Add (mesh.vertices [aVertexIndex], mesh.normals [aVertexIndex], mesh.uv [aVertexIndex]);
-                        aMeshData.Add (mesh.vertices [bVertexIndex], mesh.normals [bVertexIndex], mesh.uv [bVertexIndex]);
-                        aMeshData.Add (mesh.vertices [cVertexIndex], mesh.normals [cVertexIndex], mesh.uv [cVertexIndex]);
-                    }
-                    else if (aSide == PlaneSide.NEGATIVE && bSide == PlaneSide.NEGATIVE)
-                    {//treat as all vertecies are on a negative halfspace
-                        bMeshData.Add (mesh.vertices [aVertexIndex], mesh.normals [aVertexIndex], mesh.uv [aVertexIndex]);
-                        bMeshData.Add (mesh.vertices [bVertexIndex], mesh.normals [bVertexIndex], mesh.uv [bVertexIndex]);
-                        bMeshData.Add (mesh.vertices [cVertexIndex], mesh.normals [cVertexIndex], mesh.uv [cVertexIndex]);
-                    }
-                    else if (aSide == PlaneSide.POSITIVE && bSide == PlaneSide.NEGATIVE)
-                    {
-                        sliceTriangleWhenOneVertexIsOnAPlaneAndNextIsOnAPositiveHalfspace (aMeshData, bMeshData, mesh, plane,
+                    sliceTriangleWhenOneVertexIsOnAPlaneAndNextIsOnANegativeHalfspace (aMeshData, bMeshData, mesh, plane, bVertexIndex,
+                                               cVertexIndex, aVertexIndex, sliceEdgeVertecies);
+                }
+                else if (cSide == PlaneSide.ON_PLANE && aSide == PlaneSide.POSITIVE && bSide == PlaneSide.POSITIVE)
+                {//treat as all vertecies are on a postive halfspace
+                    aMeshData.Add (mesh.vertices [aVertexIndex], mesh.normals [aVertexIndex], mesh.uv [aVertexIndex]);
+                    aMeshData.Add (mesh.vertices [bVertexIndex], mesh.normals [bVertexIndex], mesh.uv [bVertexIndex]);
+                    aMeshData.Add (mesh.vertices [cVertexIndex], mesh.normals [cVertexIndex], mesh.uv [cVertexIndex]);
+
+                    sliceEdgeVertecies.Add (mesh.vertices [cVertexIndex]);
+                }
+                else if (cSide == PlaneSide.ON_PLANE && aSide == PlaneSide.NEGATIVE && bSide == PlaneSide.NEGATIVE)
+                {//treat as all vertecies are on a negative halfspace
+                    bMeshData.Add (mesh.vertices [aVertexIndex], mesh.normals [aVertexIndex], mesh.uv [aVertexIndex]);
+                    bMeshData.Add (mesh.vertices [bVertexIndex], mesh.normals [bVertexIndex], mesh.uv [bVertexIndex]);
+                    bMeshData.Add (mesh.vertices [cVertexIndex], mesh.normals [cVertexIndex], mesh.uv [cVertexIndex]);
+
+                    sliceEdgeVertecies.Add (mesh.vertices [cVertexIndex]);
+                }
+                else if (cSide == PlaneSide.ON_PLANE && aSide == PlaneSide.POSITIVE && bSide == PlaneSide.NEGATIVE)
+                {
+                    sliceTriangleWhenOneVertexIsOnAPlaneAndNextIsOnAPositiveHalfspace (aMeshData, bMeshData, mesh, plane,
                             cVertexIndex, aVertexIndex, bVertexIndex, sliceEdgeVertecies);
-                    }
-                    else if (aSide == PlaneSide.NEGATIVE && bSide == PlaneSide.POSITIVE)
-                    {
-                        sliceTriangleWhenOneVertexIsOnAPlaneAndNextIsOnANegativeHalfspace (aMeshData, bMeshData, mesh, plane, cVertexIndex,
-                           aVertexIndex, bVertexIndex, sliceEdgeVertecies);
-                    }
+                }
+                else if (cSide == PlaneSide.ON_PLANE && aSide == PlaneSide.NEGATIVE && bSide == PlaneSide.POSITIVE)
+                {
+                    sliceTriangleWhenOneVertexIsOnAPlaneAndNextIsOnANegativeHalfspace (aMeshData, bMeshData, mesh, plane, cVertexIndex,
+                            aVertexIndex, bVertexIndex, sliceEdgeVertecies);
+                }
+                else if (aSide == PlaneSide.ON_PLANE && bSide == PlaneSide.ON_PLANE && cSide == PlaneSide.POSITIVE)
+                {//treat as all vertecies are on a postive halfspace
+                    aMeshData.Add (mesh.vertices [aVertexIndex], mesh.normals [aVertexIndex], mesh.uv [aVertexIndex]);
+                    aMeshData.Add (mesh.vertices [bVertexIndex], mesh.normals [bVertexIndex], mesh.uv [bVertexIndex]);
+                    aMeshData.Add (mesh.vertices [cVertexIndex], mesh.normals [cVertexIndex], mesh.uv [cVertexIndex]);
+
+                    sliceEdgeVertecies.Add (mesh.vertices [aVertexIndex]);
+                    sliceEdgeVertecies.Add (mesh.vertices [bVertexIndex]);
+                }
+                else if (aSide == PlaneSide.ON_PLANE && bSide == PlaneSide.ON_PLANE && cSide == PlaneSide.NEGATIVE)
+                {//treat as all vertecies are on a negative halfspace
+                    bMeshData.Add (mesh.vertices [aVertexIndex], mesh.normals [aVertexIndex], mesh.uv [aVertexIndex]);
+                    bMeshData.Add (mesh.vertices [bVertexIndex], mesh.normals [bVertexIndex], mesh.uv [bVertexIndex]);
+                    bMeshData.Add (mesh.vertices [cVertexIndex], mesh.normals [cVertexIndex], mesh.uv [cVertexIndex]);
+
+                    sliceEdgeVertecies.Add (mesh.vertices [aVertexIndex]);
+                    sliceEdgeVertecies.Add (mesh.vertices [bVertexIndex]);
+                }
+                else if (bSide == PlaneSide.ON_PLANE && cSide == PlaneSide.ON_PLANE && aSide == PlaneSide.POSITIVE)
+                {//treat as all vertecies are on a postive halfspace
+                    aMeshData.Add (mesh.vertices [aVertexIndex], mesh.normals [aVertexIndex], mesh.uv [aVertexIndex]);
+                    aMeshData.Add (mesh.vertices [bVertexIndex], mesh.normals [bVertexIndex], mesh.uv [bVertexIndex]);
+                    aMeshData.Add (mesh.vertices [cVertexIndex], mesh.normals [cVertexIndex], mesh.uv [cVertexIndex]);
+
+                    sliceEdgeVertecies.Add (mesh.vertices [bVertexIndex]);
+                    sliceEdgeVertecies.Add (mesh.vertices [cVertexIndex]);
+                }
+                else if (bSide == PlaneSide.ON_PLANE && cSide == PlaneSide.ON_PLANE && aSide == PlaneSide.NEGATIVE)
+                {//treat as all vertecies are on a negative halfspace
+                    bMeshData.Add (mesh.vertices [aVertexIndex], mesh.normals [aVertexIndex], mesh.uv [aVertexIndex]);
+                    bMeshData.Add (mesh.vertices [bVertexIndex], mesh.normals [bVertexIndex], mesh.uv [bVertexIndex]);
+                    bMeshData.Add (mesh.vertices [cVertexIndex], mesh.normals [cVertexIndex], mesh.uv [cVertexIndex]);
+
+                    sliceEdgeVertecies.Add (mesh.vertices [bVertexIndex]);
+                    sliceEdgeVertecies.Add (mesh.vertices [cVertexIndex]);
+                }
+                else if (cSide == PlaneSide.ON_PLANE && aSide == PlaneSide.ON_PLANE && bSide == PlaneSide.POSITIVE)
+                {//treat as all vertecies are on a postive halfspace
+                    aMeshData.Add (mesh.vertices [aVertexIndex], mesh.normals [aVertexIndex], mesh.uv [aVertexIndex]);
+                    aMeshData.Add (mesh.vertices [bVertexIndex], mesh.normals [bVertexIndex], mesh.uv [bVertexIndex]);
+                    aMeshData.Add (mesh.vertices [cVertexIndex], mesh.normals [cVertexIndex], mesh.uv [cVertexIndex]);
+
+                    sliceEdgeVertecies.Add (mesh.vertices [cVertexIndex]);
+                    sliceEdgeVertecies.Add (mesh.vertices [aVertexIndex]);
+                }
+                else if (cSide == PlaneSide.ON_PLANE && aSide == PlaneSide.ON_PLANE && bSide == PlaneSide.NEGATIVE)
+                {//treat as all vertecies are on a negative halfspace
+                    bMeshData.Add (mesh.vertices [aVertexIndex], mesh.normals [aVertexIndex], mesh.uv [aVertexIndex]);
+                    bMeshData.Add (mesh.vertices [bVertexIndex], mesh.normals [bVertexIndex], mesh.uv [bVertexIndex]);
+                    bMeshData.Add (mesh.vertices [cVertexIndex], mesh.normals [cVertexIndex], mesh.uv [cVertexIndex]);
+
+                    sliceEdgeVertecies.Add (mesh.vertices [cVertexIndex]);
+                    sliceEdgeVertecies.Add (mesh.vertices [aVertexIndex]);
                 }
             }
 
