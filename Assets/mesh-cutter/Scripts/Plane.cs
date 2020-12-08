@@ -33,6 +33,12 @@ namespace MeshCutter
 
             return result;
         }
+
+        public void Transform (Transform transform)
+        {
+            this.Origin = transform.InverseTransformPoint (this.Origin);
+            this.Normal = transform.InverseTransformVector (this.Normal);
+        }
     }
 }
 

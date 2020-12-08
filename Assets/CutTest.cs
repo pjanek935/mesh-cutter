@@ -12,10 +12,16 @@ public class CutTest : MonoBehaviour
 
     void cut ()
     {
-        CutResult result = Cutter.Cut (meshToCut.mesh,
-            new MeshCutter.Plane () { Origin = plane.transform.position, Normal = plane.transform.up });
+        MeshCutter.Plane planeCutter = new MeshCutter.Plane () { Origin = plane.transform.position, Normal = plane.transform.up };
+        planeCutter.Transform (meshToCut.transform);
+        CutResult result = Cutter.Cut (meshToCut.mesh, planeCutter);
         meshA.mesh = result.AMesh;
         meshB.mesh = result.BMesh;
+
+        meshA.transform.localScale = meshToCut.transform.localScale;
+        meshB.transform.localScale = meshToCut.transform.localScale;
+        meshA.transform.rotation = meshToCut.transform.rotation;
+        meshB.transform.rotation = meshToCut.transform.rotation;
     }
 
     protected void Update ()
