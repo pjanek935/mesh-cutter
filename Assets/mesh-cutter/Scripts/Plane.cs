@@ -7,6 +7,26 @@ namespace MeshCutter
         public Vector3 Normal;
         public Vector3 Origin;
 
+        public Plane (Vector3 origin, Vector3 normal)
+        {
+            this.Origin = origin;
+            this.Normal = normal;
+        }
+
+        public Plane (Transform planeTransform, Transform objectToCutTransform)
+        {
+            if (planeTransform != null && objectToCutTransform != null)
+            {
+                this.Origin = objectToCutTransform.InverseTransformPoint (planeTransform.position);
+                this.Normal = objectToCutTransform.InverseTransformVector (planeTransform.up);
+            }
+            else
+            {
+                this.Origin = Vector3.zero;
+                this.Normal = Vector3.zero;
+            }
+        }
+
         /// <summary>
         /// Return positive number if given point is on the same side of plane that
         /// plane normal is facing. Negative number otherwise.

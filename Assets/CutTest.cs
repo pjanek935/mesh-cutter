@@ -12,8 +12,7 @@ public class CutTest : MonoBehaviour
 
     void cut ()
     {
-        MeshCutter.Plane planeCutter = new MeshCutter.Plane () { Origin = plane.transform.position, Normal = plane.transform.up };
-        planeCutter.Transform (meshToCut.transform);
+        MeshCutter.Plane planeCutter = new MeshCutter.Plane (plane.transform, meshToCut.transform);
         CutResult result = Cutter.Cut (meshToCut.mesh, planeCutter);
         meshA.mesh = result.AMesh;
         meshB.mesh = result.BMesh;
