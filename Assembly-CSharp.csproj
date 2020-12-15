@@ -64,6 +64,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Assets\CutDemo.cs" />
     <Compile Include="Assets\CutManager.cs" />
     <Compile Include="Assets\CutTest.cs" />
     <Compile Include="Assets\Cuttable.cs" />
