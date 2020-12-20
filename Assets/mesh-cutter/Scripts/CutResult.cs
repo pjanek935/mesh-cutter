@@ -18,7 +18,7 @@ namespace MeshCutter
 
         public CutResult (Mesh aMesh, Mesh bMesh)
         {
-            this.AMesh = aMesh;///
+            this.AMesh = aMesh;
             this.BMesh = bMesh;
         }
     }

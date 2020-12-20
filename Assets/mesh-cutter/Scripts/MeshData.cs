@@ -33,7 +33,7 @@ namespace MeshCutter
 
             if (index >= 0)
             {
-                if (isNearlyEqual (normal, normals [index]))
+                if (isNearlyEqual (normal, normals [index]) && isNearlyEqual (uv, UVs [index]))
                 {
                     addNew = false;
                 }
@@ -118,7 +118,7 @@ namespace MeshCutter
 
         public Mesh ToMesh (List <Vector3> edgeVertecies, float side, Plane plane)
         {
-            FillMeshWithEdgeVerteciesData (edgeVertecies, side, plane);
+            //FillMeshWithEdgeVerteciesData (edgeVertecies, side, plane);
 
             Mesh mesh = new Mesh ();
             mesh.vertices = vertices.ToArray ();

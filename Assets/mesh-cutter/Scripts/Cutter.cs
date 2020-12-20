@@ -201,7 +201,7 @@ namespace MeshCutter
 
             if (addUV)
             {
-                acUV = Vector2.Lerp (originalMesh.uv [aPositiveIndex], originalMesh.uv [cNegativeIndex], acD);
+                acUV = Vector2.Lerp (originalMesh.uv [aPositiveIndex], originalMesh.uv [cNegativeIndex], acD * 4.54f);
             }
 
             Vector3 bcNormal = Vector3.Lerp (originalMesh.normals [bPositiveIndex], originalMesh.normals [cNegativeIndex], bcD);
@@ -209,7 +209,7 @@ namespace MeshCutter
 
             if (addUV)
             {
-                bcUV = Vector3.Lerp (originalMesh.uv [bPositiveIndex], originalMesh.uv [cNegativeIndex], bcD);
+                bcUV = Vector3.Lerp (originalMesh.uv [bPositiveIndex], originalMesh.uv [cNegativeIndex], bcD * 4.54f);
             }
            
             sliceEdgeVertices.Add (acIntersection);
@@ -250,7 +250,7 @@ namespace MeshCutter
 
             if (addUV)
             {
-                abUV = Vector3.Lerp (originalMesh.normals [aPositiveIndex], originalMesh.normals [bNegativeIndex], abD);
+                abUV = Vector3.Lerp (originalMesh.uv [aPositiveIndex], originalMesh.uv [bNegativeIndex], abD * 4.54f) ;
             }
 
             Vector3 acNormal = Vector3.Lerp (originalMesh.normals [aPositiveIndex], originalMesh.normals [cNegativeIndex], acD);
@@ -258,7 +258,7 @@ namespace MeshCutter
             
             if (addUV)
             {
-                acUV = Vector3.Lerp (originalMesh.uv [aPositiveIndex], originalMesh.uv [cNegativeIndex], acD);
+                acUV = Vector3.Lerp (originalMesh.uv [aPositiveIndex], originalMesh.uv [cNegativeIndex], acD * 4.54f);
             }
 
             sliceEdgeVertecies.Add (acIntersection);
@@ -295,7 +295,7 @@ namespace MeshCutter
 
             if (addUV)
             {
-                Vector3.Lerp (originalMesh.uv [bPositiveIndex], originalMesh.uv [cNegativeIndex], bcD);
+                bcUV = Vector3.Lerp (originalMesh.uv [bPositiveIndex], originalMesh.uv [cNegativeIndex], bcD);
             }
 
             sliceEdgeVertecies.Add (originalMesh.vertices [aOnPlaneIndex]);
