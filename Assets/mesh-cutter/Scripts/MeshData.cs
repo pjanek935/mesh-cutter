@@ -16,7 +16,7 @@ namespace MeshCutter
 
         }
 
-        public int Add2 (Vector3 vertex, Vector3 normal, Vector2 uv)
+        public int Add (Vector3 vertex, Vector3 normal, Vector2 uv)
         {
             vertices.Add (vertex);
             normals.Add (normal);
@@ -26,7 +26,7 @@ namespace MeshCutter
             return vertices.Count - 1;
         }
 
-        public void Add (Vector3 vertex, Vector3 normal, Vector2 uv)
+        public void Add2 (Vector3 vertex, Vector3 normal, Vector2 uv)
         {
             int index = vertices.IndexOf (vertex);
             bool addNew = true;
@@ -118,7 +118,7 @@ namespace MeshCutter
 
         public Mesh ToMesh (List <Vector3> edgeVertecies, float side, Plane plane)
         {
-            //FillMeshWithEdgeVerteciesData (edgeVertecies, side, plane);
+            FillMeshWithEdgeVerteciesData (edgeVertecies, side, plane);
 
             Mesh mesh = new Mesh ();
             mesh.vertices = vertices.ToArray ();

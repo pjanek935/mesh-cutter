@@ -11,120 +11,125 @@ namespace MeshCutter
             MeshData bMeshData = new MeshData ();
             List<Vector3> sliceEdgeVertecies = new List<Vector3> ();
 
+            int [] meshTriangles = mesh.triangles;
+            Vector3 [] meshVertives = mesh.vertices;
+            Vector3 [] meshNormals = mesh.normals;
+            Vector2 [] meshUVs = mesh.uv;
+
             for (int i = 0; i < mesh.triangles.Length; i += 3)
             {
-                int aVertexIndex = mesh.triangles [i];
-                int bVertexIndex = mesh.triangles [i + 1];
-                int cVertexIndex = mesh.triangles [i + 2];
+                int aVertexIndex = meshTriangles [i];
+                int bVertexIndex = meshTriangles [i + 1];
+                int cVertexIndex = meshTriangles [i + 2];
 
-                PlaneSide aSide = plane.GetSide (mesh.vertices [aVertexIndex]);
-                PlaneSide bSide = plane.GetSide (mesh.vertices [bVertexIndex]);
-                PlaneSide cSide = plane.GetSide (mesh.vertices [cVertexIndex]);
+                PlaneSide aSide = plane.GetSide (meshVertives [aVertexIndex]);
+                PlaneSide bSide = plane.GetSide (meshVertives [bVertexIndex]);
+                PlaneSide cSide = plane.GetSide (meshVertives [cVertexIndex]);
 
                 if (areAllVerteciesOnTheSameSide (aSide, bSide, cSide, PlaneSide.POSITIVE))
                 {
-                    bool addUV = mesh.uv.Length > 0;
+                    bool addUV = meshUVs.Length > 0;
 
-                    aMeshData.Add (mesh.vertices [aVertexIndex], mesh.normals [aVertexIndex], addUV ? mesh.uv [aVertexIndex] : Vector2.zero);
-                    aMeshData.Add (mesh.vertices [bVertexIndex], mesh.normals [bVertexIndex], addUV ? mesh.uv [bVertexIndex] : Vector2.zero);
-                    aMeshData.Add (mesh.vertices [cVertexIndex], mesh.normals [cVertexIndex], addUV ? mesh.uv [cVertexIndex] : Vector2.zero);
+                    aMeshData.Add (meshVertives [aVertexIndex], meshNormals [aVertexIndex], addUV ? meshUVs [aVertexIndex] : Vector2.zero);
+                    aMeshData.Add (meshVertives [bVertexIndex], meshNormals [bVertexIndex], addUV ? meshUVs [bVertexIndex] : Vector2.zero);
+                    aMeshData.Add (meshVertives [cVertexIndex], meshNormals [cVertexIndex], addUV ? meshUVs [cVertexIndex] : Vector2.zero);
 
                     if (aSide == PlaneSide.ON_PLANE)
                     {
-                        sliceEdgeVertecies.Add (mesh.vertices [aVertexIndex]);
+                        sliceEdgeVertecies.Add (meshVertives [aVertexIndex]);
                     }
 
                     if (bSide == PlaneSide.ON_PLANE)
                     {
-                        sliceEdgeVertecies.Add (mesh.vertices [bVertexIndex]);
+                        sliceEdgeVertecies.Add (meshVertives [bVertexIndex]);
                     }
 
                     if (cSide == PlaneSide.ON_PLANE)
                     {
-                        sliceEdgeVertecies.Add (mesh.vertices [cVertexIndex]);
+                        sliceEdgeVertecies.Add (meshVertives [cVertexIndex]);
                     }
                 }
                 else if (areAllVerteciesOnTheSameSide (aSide, bSide, cSide, PlaneSide.NEGATIVE))
                 {
-                    bool addUV = mesh.uv.Length > 0;
+                    bool addUV = meshUVs.Length > 0;
 
-                    bMeshData.Add (mesh.vertices [aVertexIndex], mesh.normals [aVertexIndex], addUV ? mesh.uv [aVertexIndex] : Vector2.zero);
-                    bMeshData.Add (mesh.vertices [bVertexIndex], mesh.normals [bVertexIndex], addUV ? mesh.uv [bVertexIndex] : Vector2.zero);
-                    bMeshData.Add (mesh.vertices [cVertexIndex], mesh.normals [cVertexIndex], addUV ? mesh.uv [cVertexIndex] : Vector2.zero);
+                    bMeshData.Add (meshVertives [aVertexIndex], meshNormals [aVertexIndex], addUV ? meshUVs [aVertexIndex] : Vector2.zero);
+                    bMeshData.Add (meshVertives [bVertexIndex], meshNormals [bVertexIndex], addUV ? meshUVs [bVertexIndex] : Vector2.zero);
+                    bMeshData.Add (meshVertives [cVertexIndex], meshNormals [cVertexIndex], addUV ? meshUVs [cVertexIndex] : Vector2.zero);
 
                     if (aSide == PlaneSide.ON_PLANE)
                     {
-                        sliceEdgeVertecies.Add (mesh.vertices [aVertexIndex]);
+                        sliceEdgeVertecies.Add (meshVertives [aVertexIndex]);
                     }
 
                     if (bSide == PlaneSide.ON_PLANE)
                     {
-                        sliceEdgeVertecies.Add (mesh.vertices [bVertexIndex]);
+                        sliceEdgeVertecies.Add (meshVertives [bVertexIndex]);
                     }
 
                     if (cSide == PlaneSide.ON_PLANE)
                     {
-                        sliceEdgeVertecies.Add (mesh.vertices [cVertexIndex]);
+                        sliceEdgeVertecies.Add (meshVertives [cVertexIndex]);
                     }
                 }
                 else if (aSide == PlaneSide.POSITIVE && bSide == PlaneSide.NEGATIVE && cSide == PlaneSide.NEGATIVE)
                 {
-                    sliceTriangleWhenOneVertexIsOnAPositiveHalfSpace (aMeshData, bMeshData, mesh,
+                    sliceTriangleWhenOneVertexIsOnAPositiveHalfSpace (aMeshData, bMeshData, meshVertives, meshNormals, meshUVs,
                         plane, aVertexIndex, bVertexIndex, cVertexIndex, sliceEdgeVertecies);
                 }
                 else if (bSide == PlaneSide.POSITIVE && cSide == PlaneSide.NEGATIVE && aSide == PlaneSide.NEGATIVE)
                 {
-                    sliceTriangleWhenOneVertexIsOnAPositiveHalfSpace (aMeshData, bMeshData, mesh,
+                    sliceTriangleWhenOneVertexIsOnAPositiveHalfSpace (aMeshData, bMeshData, meshVertives, meshNormals, meshUVs,
                         plane, bVertexIndex, cVertexIndex, aVertexIndex, sliceEdgeVertecies);
                 }
                 else if (cSide == PlaneSide.POSITIVE && aSide == PlaneSide.NEGATIVE && bSide == PlaneSide.NEGATIVE)
                 {
-                    sliceTriangleWhenOneVertexIsOnAPositiveHalfSpace (aMeshData, bMeshData, mesh,
+                    sliceTriangleWhenOneVertexIsOnAPositiveHalfSpace (aMeshData, bMeshData, meshVertives, meshNormals, meshUVs,
                         plane, cVertexIndex, aVertexIndex, bVertexIndex, sliceEdgeVertecies);
                 }
                 else if (aSide == PlaneSide.NEGATIVE && bSide == PlaneSide.POSITIVE && cSide == PlaneSide.POSITIVE)
                 {
-                    sliceTriangleWhenTwoVerticesAreOnAPositiveHalfSpace (aMeshData, bMeshData, mesh, plane, bVertexIndex,
+                    sliceTriangleWhenTwoVerticesAreOnAPositiveHalfSpace (aMeshData, bMeshData, meshVertives, meshNormals, meshUVs, plane, bVertexIndex,
                         cVertexIndex, aVertexIndex, sliceEdgeVertecies);
                 }
                 else if (bSide == PlaneSide.NEGATIVE && cSide == PlaneSide.POSITIVE && aSide == PlaneSide.POSITIVE)
                 {
-                    sliceTriangleWhenTwoVerticesAreOnAPositiveHalfSpace (aMeshData, bMeshData, mesh, plane, cVertexIndex,
+                    sliceTriangleWhenTwoVerticesAreOnAPositiveHalfSpace (aMeshData, bMeshData, meshVertives, meshNormals, meshUVs, plane, cVertexIndex,
                         aVertexIndex, bVertexIndex, sliceEdgeVertecies);
                 }
                 else if (cSide == PlaneSide.NEGATIVE && aSide == PlaneSide.POSITIVE && bSide == PlaneSide.POSITIVE)
                 {
-                    sliceTriangleWhenTwoVerticesAreOnAPositiveHalfSpace (aMeshData, bMeshData, mesh, plane, aVertexIndex,
+                    sliceTriangleWhenTwoVerticesAreOnAPositiveHalfSpace (aMeshData, bMeshData, meshVertives, meshNormals, meshUVs, plane, aVertexIndex,
                         bVertexIndex, cVertexIndex, sliceEdgeVertecies);
                 }
                 else if (aSide == PlaneSide.ON_PLANE && bSide == PlaneSide.POSITIVE && cSide == PlaneSide.NEGATIVE)
                 {
-                    sliceTriangleWhenOneVertexIsOnAPlaneAndNextIsOnAPositiveHalfspace (aMeshData, bMeshData, mesh, plane, aVertexIndex, bVertexIndex,
+                    sliceTriangleWhenOneVertexIsOnAPlaneAndNextIsOnAPositiveHalfspace (aMeshData, bMeshData, meshVertives, meshNormals, meshUVs, plane, aVertexIndex, bVertexIndex,
                             cVertexIndex, sliceEdgeVertecies);
                 }
                 else if (aSide == PlaneSide.ON_PLANE)
                 {
-                    sliceTriangleWhenOneVertexIsOnAPlaneAndNextIsOnANegativeHalfspace (aMeshData, bMeshData, mesh, plane, aVertexIndex,
+                    sliceTriangleWhenOneVertexIsOnAPlaneAndNextIsOnANegativeHalfspace (aMeshData, bMeshData, meshVertives, meshNormals, meshUVs, plane, aVertexIndex,
                             bVertexIndex, cVertexIndex, sliceEdgeVertecies);
                 }
                 else if (bSide == PlaneSide.ON_PLANE && cSide == PlaneSide.POSITIVE && aSide == PlaneSide.NEGATIVE)
                 {
-                    sliceTriangleWhenOneVertexIsOnAPlaneAndNextIsOnAPositiveHalfspace (aMeshData, bMeshData, mesh, plane,
+                    sliceTriangleWhenOneVertexIsOnAPlaneAndNextIsOnAPositiveHalfspace (aMeshData, bMeshData, meshVertives, meshNormals, meshUVs, plane,
                             bVertexIndex, cVertexIndex, aVertexIndex, sliceEdgeVertecies);
                 }
                 else if (bSide == PlaneSide.ON_PLANE && cSide == PlaneSide.NEGATIVE && aSide == PlaneSide.POSITIVE)
                 {
-                    sliceTriangleWhenOneVertexIsOnAPlaneAndNextIsOnANegativeHalfspace (aMeshData, bMeshData, mesh, plane, bVertexIndex,
+                    sliceTriangleWhenOneVertexIsOnAPlaneAndNextIsOnANegativeHalfspace (aMeshData, bMeshData, meshVertives, meshNormals, meshUVs, plane, bVertexIndex,
                                                cVertexIndex, aVertexIndex, sliceEdgeVertecies);
                 }
                 else if (cSide == PlaneSide.ON_PLANE && aSide == PlaneSide.POSITIVE && bSide == PlaneSide.NEGATIVE)
                 {
-                    sliceTriangleWhenOneVertexIsOnAPlaneAndNextIsOnAPositiveHalfspace (aMeshData, bMeshData, mesh, plane,
+                    sliceTriangleWhenOneVertexIsOnAPlaneAndNextIsOnAPositiveHalfspace (aMeshData, bMeshData, meshVertives, meshNormals, meshUVs, plane,
                             cVertexIndex, aVertexIndex, bVertexIndex, sliceEdgeVertecies);
                 }
                 else if (cSide == PlaneSide.ON_PLANE && aSide == PlaneSide.NEGATIVE && bSide == PlaneSide.POSITIVE)
                 {
-                    sliceTriangleWhenOneVertexIsOnAPlaneAndNextIsOnANegativeHalfspace (aMeshData, bMeshData, mesh, plane, cVertexIndex,
+                    sliceTriangleWhenOneVertexIsOnAPlaneAndNextIsOnANegativeHalfspace (aMeshData, bMeshData, meshVertives, meshNormals, meshUVs, plane, cVertexIndex,
                             aVertexIndex, bVertexIndex, sliceEdgeVertecies);
                 }
             }
@@ -183,167 +188,171 @@ namespace MeshCutter
             return result;
         }
 
-        static void sliceTriangleWhenTwoVerticesAreOnAPositiveHalfSpace (MeshData aMeshData, MeshData bMeshData, Mesh originalMesh, Plane plane,
-            int aPositiveIndex, int bPositiveIndex, int cNegativeIndex, List <Vector3> sliceEdgeVertices)
+        static void sliceTriangleWhenTwoVerticesAreOnAPositiveHalfSpace (MeshData aMeshData, MeshData bMeshData, 
+            Vector3 [] originalMeshVertices, Vector3 [] originalMeshNormals, Vector2 [] originalMeshUVs, 
+            Plane plane, int aPositiveIndex, int bPositiveIndex, int cNegativeIndex, List <Vector3> sliceEdgeVertices)
         {
-            bool addUV = originalMesh.uv.Length > 0;
+            bool addUV = originalMeshUVs.Length > 0;
 
             float acD; //normalized distance between A and C
-            Vector3 acIntersection = getPlaneIntersectionPoint (plane, originalMesh.vertices [aPositiveIndex],
-                originalMesh.vertices [cNegativeIndex], out acD);
+            Vector3 acIntersection = getPlaneIntersectionPoint (plane, originalMeshVertices [aPositiveIndex],
+                originalMeshVertices [cNegativeIndex], out acD);
 
             float bcD;
-            Vector3 bcIntersection = getPlaneIntersectionPoint (plane, originalMesh.vertices [bPositiveIndex],
-                originalMesh.vertices [cNegativeIndex], out bcD);
+            Vector3 bcIntersection = getPlaneIntersectionPoint (plane, originalMeshVertices [bPositiveIndex],
+                originalMeshVertices [cNegativeIndex], out bcD);
 
-            Vector3 acNormal = Vector3.Lerp (originalMesh.normals [aPositiveIndex], originalMesh.normals [cNegativeIndex], acD);
+            Vector3 acNormal = Vector3.Lerp (originalMeshNormals [aPositiveIndex], originalMeshNormals [cNegativeIndex], acD);
             Vector2 acUV = Vector2.zero;
 
             if (addUV)
             {
-                acUV = Vector2.Lerp (originalMesh.uv [aPositiveIndex], originalMesh.uv [cNegativeIndex], acD * 4.54f);
+                acUV = Vector2.Lerp (originalMeshUVs [aPositiveIndex], originalMeshUVs [cNegativeIndex], acD * 4.54f);
             }
 
-            Vector3 bcNormal = Vector3.Lerp (originalMesh.normals [bPositiveIndex], originalMesh.normals [cNegativeIndex], bcD);
+            Vector3 bcNormal = Vector3.Lerp (originalMeshNormals [bPositiveIndex], originalMeshNormals [cNegativeIndex], bcD);
             Vector2 bcUV = Vector2.zero;
 
             if (addUV)
             {
-                bcUV = Vector3.Lerp (originalMesh.uv [bPositiveIndex], originalMesh.uv [cNegativeIndex], bcD * 4.54f);
+                bcUV = Vector3.Lerp (originalMeshUVs [bPositiveIndex], originalMeshUVs [cNegativeIndex], bcD * 4.54f);
             }
            
             sliceEdgeVertices.Add (acIntersection);
             sliceEdgeVertices.Add (bcIntersection);
 
-            aMeshData.Add (originalMesh.vertices [aPositiveIndex],
-                originalMesh.normals [aPositiveIndex], addUV ? originalMesh.uv [aPositiveIndex] : Vector2.zero);
-            aMeshData.Add (originalMesh.vertices [bPositiveIndex],
-               originalMesh.normals [bPositiveIndex], addUV ? originalMesh.uv [bPositiveIndex] : Vector2.zero);
+            aMeshData.Add (originalMeshVertices [aPositiveIndex],
+                originalMeshNormals [aPositiveIndex], addUV ? originalMeshUVs [aPositiveIndex] : Vector2.zero);
+            aMeshData.Add (originalMeshVertices [bPositiveIndex],
+               originalMeshNormals [bPositiveIndex], addUV ? originalMeshUVs [bPositiveIndex] : Vector2.zero);
             aMeshData.Add (acIntersection, acNormal, acUV);
 
             aMeshData.Add (acIntersection, acNormal, acUV);
-            aMeshData.Add (originalMesh.vertices [bPositiveIndex],
-              originalMesh.normals [bPositiveIndex], addUV ? originalMesh.uv [bPositiveIndex] : Vector2.zero);
+            aMeshData.Add (originalMeshVertices [bPositiveIndex],
+              originalMeshNormals [bPositiveIndex], addUV ? originalMeshUVs [bPositiveIndex] : Vector2.zero);
             aMeshData.Add (bcIntersection, bcNormal, bcUV);
 
             bMeshData.Add (acIntersection, acNormal, acUV);
             bMeshData.Add (bcIntersection, bcNormal, bcUV);
-            bMeshData.Add (originalMesh.vertices [cNegativeIndex],
-             originalMesh.normals [cNegativeIndex], addUV ? originalMesh.uv [cNegativeIndex] : Vector2.zero);
+            bMeshData.Add (originalMeshVertices [cNegativeIndex],
+             originalMeshNormals [cNegativeIndex], addUV ? originalMeshUVs [cNegativeIndex] : Vector2.zero);
         }
 
-        static void sliceTriangleWhenOneVertexIsOnAPositiveHalfSpace (MeshData aMeshData, MeshData bMeshData, Mesh originalMesh, Plane plane,
-            int aPositiveIndex, int bNegativeIndex, int cNegativeIndex, List <Vector3> sliceEdgeVertecies)
+        static void sliceTriangleWhenOneVertexIsOnAPositiveHalfSpace (MeshData aMeshData, MeshData bMeshData, 
+            Vector3 [] originalMeshVertices, Vector3 [] originalMeshNormals, Vector2 [] originalMeshUVs, 
+            Plane plane, int aPositiveIndex, int bNegativeIndex, int cNegativeIndex, List <Vector3> sliceEdgeVertecies)
         {
-            bool addUV = originalMesh.uv.Length > 0;
+            bool addUV = originalMeshUVs.Length > 0;
 
             float abD; //normalized distance between A and B
-            Vector3 abIntersection = getPlaneIntersectionPoint (plane, originalMesh.vertices [aPositiveIndex],
-                originalMesh.vertices [bNegativeIndex], out abD);
+            Vector3 abIntersection = getPlaneIntersectionPoint (plane, originalMeshVertices [aPositiveIndex],
+                originalMeshVertices [bNegativeIndex], out abD);
 
             float acD;
-            Vector3 acIntersection = getPlaneIntersectionPoint (plane, originalMesh.vertices [aPositiveIndex],
-                originalMesh.vertices [cNegativeIndex], out acD);
+            Vector3 acIntersection = getPlaneIntersectionPoint (plane, originalMeshVertices [aPositiveIndex],
+                originalMeshVertices [cNegativeIndex], out acD);
 
-            Vector3 abNormal = Vector3.Lerp (originalMesh.normals [aPositiveIndex], originalMesh.normals [bNegativeIndex], abD);
+            Vector3 abNormal = Vector3.Lerp (originalMeshNormals [aPositiveIndex], originalMeshNormals [bNegativeIndex], abD);
             Vector2 abUV = Vector2.zero;
 
             if (addUV)
             {
-                abUV = Vector3.Lerp (originalMesh.uv [aPositiveIndex], originalMesh.uv [bNegativeIndex], abD * 4.54f) ;
+                abUV = Vector3.Lerp (originalMeshUVs [aPositiveIndex], originalMeshUVs [bNegativeIndex], abD * 4.54f) ;
             }
 
-            Vector3 acNormal = Vector3.Lerp (originalMesh.normals [aPositiveIndex], originalMesh.normals [cNegativeIndex], acD);
+            Vector3 acNormal = Vector3.Lerp (originalMeshNormals [aPositiveIndex], originalMeshNormals [cNegativeIndex], acD);
             Vector2 acUV = Vector2.zero;
             
             if (addUV)
             {
-                acUV = Vector3.Lerp (originalMesh.uv [aPositiveIndex], originalMesh.uv [cNegativeIndex], acD * 4.54f);
+                acUV = Vector3.Lerp (originalMeshUVs [aPositiveIndex], originalMeshUVs [cNegativeIndex], acD * 4.54f);
             }
 
             sliceEdgeVertecies.Add (acIntersection);
             sliceEdgeVertecies.Add (abIntersection);
 
-            aMeshData.Add (originalMesh.vertices [aPositiveIndex], 
-                originalMesh.normals [aPositiveIndex], addUV ? originalMesh.uv [aPositiveIndex] : Vector2.zero);
+            aMeshData.Add (originalMeshVertices [aPositiveIndex],
+                originalMeshNormals [aPositiveIndex], addUV ? originalMeshUVs [aPositiveIndex] : Vector2.zero);
             aMeshData.Add (abIntersection, abNormal, abUV);
             aMeshData.Add (acIntersection, acNormal, acUV);
 
             bMeshData.Add (acIntersection, acNormal, acUV);
             bMeshData.Add (abIntersection, abNormal, abUV);
-            bMeshData.Add (originalMesh.vertices [bNegativeIndex],
-                originalMesh.normals [bNegativeIndex], addUV ? originalMesh.uv [bNegativeIndex] : Vector2.zero);
+            bMeshData.Add (originalMeshVertices [bNegativeIndex],
+                originalMeshNormals [bNegativeIndex], addUV ? originalMeshUVs [bNegativeIndex] : Vector2.zero);
 
             bMeshData.Add (acIntersection, acNormal, acUV);
-            bMeshData.Add (originalMesh.vertices [bNegativeIndex], originalMesh.normals [bNegativeIndex],
-                addUV ? originalMesh.uv [bNegativeIndex] : Vector2.zero);
-            bMeshData.Add (originalMesh.vertices [cNegativeIndex], originalMesh.normals [cNegativeIndex],
-                addUV ? originalMesh.uv [cNegativeIndex] : Vector2.zero);
+            bMeshData.Add (originalMeshVertices [bNegativeIndex], originalMeshNormals [bNegativeIndex],
+                addUV ? originalMeshUVs [bNegativeIndex] : Vector2.zero);
+            bMeshData.Add (originalMeshVertices [cNegativeIndex], originalMeshNormals [cNegativeIndex],
+                addUV ? originalMeshUVs [cNegativeIndex] : Vector2.zero);
         }
 
-        static void sliceTriangleWhenOneVertexIsOnAPlaneAndNextIsOnAPositiveHalfspace (MeshData aMeshData, MeshData bMeshData, Mesh originalMesh, Plane plane,
-            int aOnPlaneIndex, int bPositiveIndex, int cNegativeIndex, List<Vector3> sliceEdgeVertecies)
+        static void sliceTriangleWhenOneVertexIsOnAPlaneAndNextIsOnAPositiveHalfspace (MeshData aMeshData, MeshData bMeshData,
+            Vector3 [] originalMeshVertices, Vector3 [] originalMeshNormals, Vector2 [] originalMeshUVs,
+            Plane plane, int aOnPlaneIndex, int bPositiveIndex, int cNegativeIndex, List<Vector3> sliceEdgeVertecies)
         {
-            bool addUV = originalMesh.uv.Length > 0;
+            bool addUV = originalMeshUVs.Length > 0;
 
             float bcD; //normalized distance between B and C
-            Vector3 bcIntersection = getPlaneIntersectionPoint (plane, originalMesh.vertices [bPositiveIndex],
-                originalMesh.vertices [cNegativeIndex], out bcD);
+            Vector3 bcIntersection = getPlaneIntersectionPoint (plane, originalMeshVertices [bPositiveIndex],
+                originalMeshVertices [cNegativeIndex], out bcD);
 
-            Vector3 bcNormal = Vector3.Lerp (originalMesh.normals [bPositiveIndex], originalMesh.normals [cNegativeIndex], bcD);
+            Vector3 bcNormal = Vector3.Lerp (originalMeshNormals [bPositiveIndex], originalMeshNormals [cNegativeIndex], bcD);
             Vector2 bcUV = Vector2.zero;
 
             if (addUV)
             {
-                bcUV = Vector3.Lerp (originalMesh.uv [bPositiveIndex], originalMesh.uv [cNegativeIndex], bcD);
+                bcUV = Vector3.Lerp (originalMeshUVs [bPositiveIndex], originalMeshUVs [cNegativeIndex], bcD);
             }
 
-            sliceEdgeVertecies.Add (originalMesh.vertices [aOnPlaneIndex]);
+            sliceEdgeVertecies.Add (originalMeshVertices [aOnPlaneIndex]);
             sliceEdgeVertecies.Add (bcIntersection);
 
-            aMeshData.Add (originalMesh.vertices [aOnPlaneIndex],
-               originalMesh.normals [aOnPlaneIndex], addUV ? originalMesh.uv [aOnPlaneIndex] : Vector2.zero);
-            aMeshData.Add (originalMesh.vertices [bPositiveIndex],
-                originalMesh.normals [bPositiveIndex], addUV ? originalMesh.uv [bPositiveIndex] : Vector2.zero);
+            aMeshData.Add (originalMeshVertices [aOnPlaneIndex],
+               originalMeshNormals [aOnPlaneIndex], addUV ? originalMeshUVs [aOnPlaneIndex] : Vector2.zero);
+            aMeshData.Add (originalMeshVertices [bPositiveIndex],
+                originalMeshNormals [bPositiveIndex], addUV ? originalMeshUVs [bPositiveIndex] : Vector2.zero);
             aMeshData.Add (bcIntersection, bcNormal, bcUV);
 
-            bMeshData.Add (originalMesh.vertices [aOnPlaneIndex],
-               originalMesh.normals [aOnPlaneIndex], addUV ? originalMesh.uv [aOnPlaneIndex] : Vector2.zero);
+            bMeshData.Add (originalMeshVertices [aOnPlaneIndex],
+               originalMeshNormals [aOnPlaneIndex], addUV ? originalMeshUVs [aOnPlaneIndex] : Vector2.zero);
             bMeshData.Add (bcIntersection, bcNormal, bcUV);
-            bMeshData.Add (originalMesh.vertices [cNegativeIndex],
-                originalMesh.normals [cNegativeIndex], addUV ? originalMesh.uv [cNegativeIndex] : Vector2.zero);
+            bMeshData.Add (originalMeshVertices [cNegativeIndex],
+                originalMeshNormals [cNegativeIndex], addUV ? originalMeshUVs [cNegativeIndex] : Vector2.zero);
         }
 
-        static void sliceTriangleWhenOneVertexIsOnAPlaneAndNextIsOnANegativeHalfspace (MeshData aMeshData, MeshData bMeshData, Mesh originalMesh, Plane plane,
-            int aOnPlaneIndex, int bNegativeIndex, int cPositiveIndex, List<Vector3> sliceEdgeVertecies)
+        static void sliceTriangleWhenOneVertexIsOnAPlaneAndNextIsOnANegativeHalfspace (MeshData aMeshData, MeshData bMeshData,
+            Vector3 [] originalMeshVertices, Vector3 [] originalMeshNormals, Vector2 [] orignalMeshUVs, 
+            Plane plane, int aOnPlaneIndex, int bNegativeIndex, int cPositiveIndex, List<Vector3> sliceEdgeVertecies)
         {
-            bool addUV = originalMesh.uv.Length > 0;
+            bool addUV = orignalMeshUVs.Length > 0;
 
             float bcD; //normalized distance between B and C
-            Vector3 bcIntersection = getPlaneIntersectionPoint (plane, originalMesh.vertices [bNegativeIndex],
-                originalMesh.vertices [cPositiveIndex], out bcD);
+            Vector3 bcIntersection = getPlaneIntersectionPoint (plane, originalMeshVertices [bNegativeIndex],
+                originalMeshVertices [cPositiveIndex], out bcD);
 
-            Vector3 bcNormal = Vector3.Lerp (originalMesh.normals [bNegativeIndex], originalMesh.normals [cPositiveIndex], bcD);
+            Vector3 bcNormal = Vector3.Lerp (originalMeshNormals [bNegativeIndex], originalMeshNormals [cPositiveIndex], bcD);
             Vector2 bcUV = Vector2.zero;
 
             if (addUV)
             {
-                bcUV = Vector3.Lerp (originalMesh.uv [bNegativeIndex], originalMesh.uv [cPositiveIndex], bcD);
+                bcUV = Vector3.Lerp (orignalMeshUVs [bNegativeIndex], orignalMeshUVs [cPositiveIndex], bcD);
             }
 
             sliceEdgeVertecies.Add (bcIntersection);
-            sliceEdgeVertecies.Add (originalMesh.vertices [aOnPlaneIndex]);
+            sliceEdgeVertecies.Add (originalMeshVertices [aOnPlaneIndex]);
 
-            aMeshData.Add (originalMesh.vertices [cPositiveIndex],
-               originalMesh.normals [cPositiveIndex], addUV ? originalMesh.uv [cPositiveIndex] : Vector2.zero);
-            aMeshData.Add (originalMesh.vertices [aOnPlaneIndex],
-                originalMesh.normals [aOnPlaneIndex], addUV ? originalMesh.uv [aOnPlaneIndex] : Vector2.zero);
+            aMeshData.Add (originalMeshVertices [cPositiveIndex],
+               originalMeshNormals [cPositiveIndex], addUV ? orignalMeshUVs [cPositiveIndex] : Vector2.zero);
+            aMeshData.Add (originalMeshVertices [aOnPlaneIndex],
+                originalMeshNormals [aOnPlaneIndex], addUV ? orignalMeshUVs [aOnPlaneIndex] : Vector2.zero);
             aMeshData.Add (bcIntersection, bcNormal, bcUV);
 
-            bMeshData.Add (originalMesh.vertices [aOnPlaneIndex],
-               originalMesh.normals [aOnPlaneIndex], addUV ? originalMesh.uv [aOnPlaneIndex] : Vector2.zero);
-            bMeshData.Add (originalMesh.vertices [bNegativeIndex],
-                originalMesh.normals [bNegativeIndex], addUV ? originalMesh.uv [bNegativeIndex] : Vector2.zero);
+            bMeshData.Add (originalMeshVertices [aOnPlaneIndex],
+               originalMeshNormals [aOnPlaneIndex], addUV ? orignalMeshUVs [aOnPlaneIndex] : Vector2.zero);
+            bMeshData.Add (originalMeshVertices [bNegativeIndex],
+                originalMeshNormals [bNegativeIndex], addUV ? orignalMeshUVs [bNegativeIndex] : Vector2.zero);
             bMeshData.Add (bcIntersection, bcNormal, bcUV);
             
         }

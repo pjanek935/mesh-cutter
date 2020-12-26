@@ -64,17 +64,16 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Assets\CameraController.cs" />
-    <Compile Include="Assets\CutDemo.cs" />
-    <Compile Include="Assets\CutManager.cs" />
-    <Compile Include="Assets\CutTest.cs" />
-    <Compile Include="Assets\Cuttable.cs" />
-    <Compile Include="Assets\DebugMeshDataRenderer.cs" />
+    <Compile Include="Assets\mesh-cutter\Scripts\CameraController.cs" />
+    <Compile Include="Assets\mesh-cutter\Scripts\CutDemo.cs" />
     <Compile Include="Assets\mesh-cutter\Scripts\CutResult.cs" />
+    <Compile Include="Assets\mesh-cutter\Scripts\Cuttable.cs" />
     <Compile Include="Assets\mesh-cutter\Scripts\Cutter.cs" />
     <Compile Include="Assets\mesh-cutter\Scripts\Enums.cs" />
     <Compile Include="Assets\mesh-cutter\Scripts\MeshData.cs" />
     <Compile Include="Assets\mesh-cutter\Scripts\Plane.cs" />
+    <Compile Include="Assets\mesh-cutter\Scripts\UILineRenderer.cs" />
+    <Compile Include="Assets\mesh-cutter\Scripts\VirtualKatana.cs" />
     <Reference Include="UnityEngine">
       <HintPath>C:/Program Files/Unity/Hub/Editor/2019.4.16f1/Editor/Data/Managed/UnityEngine/UnityEngine.dll</HintPath>
     </Reference>
