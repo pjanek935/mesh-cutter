@@ -11,6 +11,7 @@ namespace MeshCutter
         [SerializeField] Cuttable originalObjectToCut;
         [SerializeField] Transform origin;
         [SerializeField] Mesh originalTatamiMesh;
+        [SerializeField] ParticleManager particleManager;
 
         [SerializeField] float torqueAfterCutRange = 0.1f;
         [SerializeField] Vector2 forceAfterCut = new Vector2 (2, 7);
@@ -121,6 +122,14 @@ namespace MeshCutter
                 rb.AddTorque (new Vector3 ((float) random.NextDouble () * torqueAfterCutRange / 2f,
                     (float) random.NextDouble () * torqueAfterCutRange / 2f,
                     ((float) random.NextDouble () * torqueAfterCutRange / 2f) * 0.5f), ForceMode.Impulse);
+
+
+                if (cutResult.EdgeVertices.Count > 0)
+                {
+                    Vector3 pos = cutResult.EdgeVertices [0];
+                    pos = parent.transform.TransformPoint (pos);
+                    particleManager.ShootParticles (pos, cutDirection);
+                }
             }
         }
 

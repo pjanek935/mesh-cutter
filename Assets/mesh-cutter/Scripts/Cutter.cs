@@ -135,7 +135,7 @@ namespace MeshCutter
             }
 
             return new CutResult (aMeshData.ToMesh (sliceEdgeVertecies, 1, plane),
-                bMeshData.ToMesh (sliceEdgeVertecies , - 1, plane));
+                bMeshData.ToMesh (sliceEdgeVertecies , - 1, plane), sliceEdgeVertecies);
         }
 
         static bool areAllVerteciesOnTheSameSide (PlaneSide aSide, PlaneSide bSide, PlaneSide cSide, PlaneSide side)
