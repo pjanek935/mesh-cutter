@@ -36,6 +36,7 @@ namespace MeshCutter
         private void Awake ()
         {
             initChildren ();
+            activatedChildren.Add (originalObjectToCut);
         }
 
         private void OnEnable ()
@@ -57,8 +58,11 @@ namespace MeshCutter
             }
 
             activatedChildren.Clear ();
+
+            originalObjectToCut.gameObject.SetActive (true);
             originalObjectToCut.GetComponent<MeshFilter> ().mesh = originalTatamiMesh;
             originalObjectToCut.GetComponent<MeshCollider> ().sharedMesh = originalTatamiMesh;
+            activatedChildren.Add (originalObjectToCut);
         }
 
         private void Update ()
@@ -69,53 +73,48 @@ namespace MeshCutter
             }
         }
 
-        void cut (GameObject parent, Plane cuttingPlane, Vector3 cutDirection)
+        bool cut (Cuttable parent, Cuttable newChild, Plane cuttingPlane, Vector3 cutDirection)
         {
-            MeshFilter parentMeshFilter = parent.GetComponent<MeshFilter> ();
-            CutResult cutResult = Cutter.Cut (parentMeshFilter.mesh, cuttingPlane);
+            bool result = false;
+
+            if (parent == null || newChild == null)
+                return false;
+
+            CutResult cutResult = Cutter.Cut (parent.GetMeshFilter ().mesh, cuttingPlane);
             Mesh newOriginalMesh = cutResult.AMesh;
             Mesh childMesh = cutResult.BMesh;
 
-            if (newOriginalMesh.vertexCount == 0 || childMesh.vertexCount == 0)
+            if (newOriginalMesh.vertexCount > 0 && childMesh.vertexCount > 0)
             {
-                return;
-            }
+                bool isOriginalTatami = string.Equals (parent.tag, originalTatamiTag);
 
-            bool isOriginalTatami = string.Equals (parent.tag, originalTatamiTag);
-
-            if (isOriginalTatami)
-            {
-                Vector3 aPos = parent.transform.TransformPoint (cutResult.AMesh.vertices [0]);
-                Vector3 bPos = parent.transform.TransformPoint (cutResult.BMesh.vertices [0]);
-                float aD = Vector3.Distance (origin.position, aPos);
-                float bD = Vector3.Distance (origin.position, bPos);
-
-                if (bD < aD)
+                if (isOriginalTatami)
                 {
-                    newOriginalMesh = cutResult.BMesh;
-                    childMesh = cutResult.AMesh;
+                    Vector3 aPos = parent.transform.TransformPoint (cutResult.AMesh.vertices [0]);
+                    Vector3 bPos = parent.transform.TransformPoint (cutResult.BMesh.vertices [0]);
+                    float aD = Vector3.Distance (origin.position, aPos);
+                    float bD = Vector3.Distance (origin.position, bPos);
+
+                    if (bD < aD)
+                    {
+                        newOriginalMesh = cutResult.BMesh;
+                        childMesh = cutResult.AMesh;
+                    }
                 }
-            }
 
-            parentMeshFilter.mesh = newOriginalMesh;
-            MeshCollider meshCollider = parent.GetComponent<MeshCollider> ();
-            meshCollider.sharedMesh = newOriginalMesh;
+                parent.GetMeshFilter ().mesh = newOriginalMesh;
+                MeshCollider meshCollider = parent.GetComponent<MeshCollider> ();
+                meshCollider.sharedMesh = newOriginalMesh;
 
-            if (deactivatedChildrenPool.Count > 0)
-            {
-                GameObject gameObject = deactivatedChildrenPool.Dequeue ().gameObject;
-                activatedChildren.Add (gameObject.GetComponent<Cuttable> ());
-
-                gameObject.transform.position = parent.transform.position;
-                gameObject.transform.rotation = parent.transform.rotation;
-                gameObject.transform.localScale = parent.transform.localScale;
-                parentMeshFilter = gameObject.GetComponent<MeshFilter> ();
-                parentMeshFilter.mesh = childMesh;
-                meshCollider = gameObject.GetComponent<MeshCollider> ();
+                newChild.transform.position = parent.transform.position;
+                newChild.transform.rotation = parent.transform.rotation;
+                newChild.transform.localScale = parent.transform.localScale;
+                newChild.GetMeshFilter ().mesh = childMesh;
+                meshCollider = newChild.GetComponent<MeshCollider> ();
                 meshCollider.convex = true;
                 meshCollider.sharedMesh = childMesh;
-                gameObject.SetActive (true);
-                Rigidbody rb = gameObject.GetComponent<Rigidbody> ();
+                newChild.gameObject.SetActive (true);
+                Rigidbody rb = newChild.GetComponent<Rigidbody> ();
 
                 Vector3 forceVector = Vector3.up * forceAfterCut.y + cutDirection.normalized * forceAfterCut.x;
                 rb.AddForce (forceVector, ForceMode.Impulse);
@@ -123,32 +122,48 @@ namespace MeshCutter
                     (float) random.NextDouble () * torqueAfterCutRange / 2f,
                     ((float) random.NextDouble () * torqueAfterCutRange / 2f) * 0.5f), ForceMode.Impulse);
 
-
                 if (cutResult.EdgeVertices.Count > 0)
                 {
                     Vector3 pos = cutResult.EdgeVertices [0];
                     pos = parent.transform.TransformPoint (pos);
                     particleManager.ShootParticles (pos, cutDirection);
                 }
+
+                result = true;
             }
+
+            parent.IsBusy = false;
+            newChild.IsBusy = false;
+
+            return result;
         }
 
         void onCutTriggered (Transform planeTransform)
         {
-            if (originalObjectToCut.IsTouchingBlade)
-            {
-                MeshCutter.Plane cuttingPlane = new MeshCutter.Plane (planeTransform, originalObjectToCut.transform);
-                cut (originalObjectToCut.gameObject, cuttingPlane, planeTransform.right);
-            }
-
             int activadedChildrenCount = activatedChildren.Count;
 
             for (int i = 0; i < activadedChildrenCount; i ++)
             {
-                if (activatedChildren [i].IsTouchingBlade)
+                if (! activatedChildren [i].IsBusy && activatedChildren [i].IsTouchingBlade)
                 {
                     MeshCutter.Plane cuttingPlane = new MeshCutter.Plane (planeTransform, activatedChildren [i].transform);
-                    cut (activatedChildren [i].gameObject, cuttingPlane, planeTransform.right);
+                   
+                    if (deactivatedChildrenPool.Count > 0)
+                    {
+                        Cuttable newChild = deactivatedChildrenPool.Dequeue ();
+
+                        activatedChildren [i].IsBusy = true;
+                        newChild.IsBusy = true;
+                        
+                        if (cut (activatedChildren [i], newChild, cuttingPlane, planeTransform.right))
+                        {
+                            activatedChildren.Add (newChild);
+                        }
+                        else
+                        {
+                            deactivatedChildrenPool.Enqueue (newChild);
+                        }
+                    }
                 }
             }
         }
