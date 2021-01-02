@@ -1,5 +1,5 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using Unity.Jobs;
 using UnityEngine;
 
 namespace MeshCutter
@@ -20,7 +20,7 @@ namespace MeshCutter
         Queue<Cuttable> deactivatedChildrenPool = new Queue<Cuttable> ();
         System.Random random = new System.Random ();
 
-        const int childrenCount = 25;
+        const int childrenCount = 100;
         const string originalTatamiTag = "OriginalTatami";
 
         void initChildren ()
@@ -116,12 +116,15 @@ namespace MeshCutter
                 newChild.gameObject.SetActive (true);
                 Rigidbody rb = newChild.GetComponent<Rigidbody> ();
 
-                Vector3 forceVector = Vector3.up * forceAfterCut.y + cutDirection.normalized * forceAfterCut.x;
-                rb.AddForce (forceVector, ForceMode.Impulse);
-                rb.AddTorque (new Vector3 ((float) random.NextDouble () * torqueAfterCutRange / 2f,
-                    (float) random.NextDouble () * torqueAfterCutRange / 2f,
-                    ((float) random.NextDouble () * torqueAfterCutRange / 2f) * 0.5f), ForceMode.Impulse);
-
+                if (rb != null)
+                {
+                    Vector3 forceVector = Vector3.up * forceAfterCut.y + cutDirection.normalized * forceAfterCut.x;
+                    rb.AddForce (forceVector, ForceMode.Impulse);
+                    rb.AddTorque (new Vector3 ((float) random.NextDouble () * torqueAfterCutRange / 2f,
+                        (float) random.NextDouble () * torqueAfterCutRange / 2f,
+                        ((float) random.NextDouble () * torqueAfterCutRange / 2f) * 0.5f), ForceMode.Impulse);
+                }
+                
                 if (cutResult.EdgeVertices.Count > 0)
                 {
                     Vector3 pos = cutResult.EdgeVertices [0];
@@ -132,9 +135,6 @@ namespace MeshCutter
                 result = true;
             }
 
-            parent.IsBusy = false;
-            newChild.IsBusy = false;
-
             return result;
         }
 
@@ -144,17 +144,14 @@ namespace MeshCutter
 
             for (int i = 0; i < activadedChildrenCount; i ++)
             {
-                if (! activatedChildren [i].IsBusy && activatedChildren [i].IsTouchingBlade)
+                if (activatedChildren [i].IsTouchingBlade)
                 {
-                    MeshCutter.Plane cuttingPlane = new MeshCutter.Plane (planeTransform, activatedChildren [i].transform);
+                    Plane cuttingPlane = new Plane (planeTransform, activatedChildren [i].transform);
                    
                     if (deactivatedChildrenPool.Count > 0)
                     {
                         Cuttable newChild = deactivatedChildrenPool.Dequeue ();
 
-                        activatedChildren [i].IsBusy = true;
-                        newChild.IsBusy = true;
-                        
                         if (cut (activatedChildren [i], newChild, cuttingPlane, planeTransform.right))
                         {
                             activatedChildren.Add (newChild);

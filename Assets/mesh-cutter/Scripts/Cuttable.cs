@@ -6,6 +6,7 @@ namespace MeshCutter
     public class Cuttable : MonoBehaviour
     {
         MeshFilter meshFilter = null;
+        const string BladeTag = "Blade";
 
         private void Awake ()
         {
@@ -25,15 +26,9 @@ namespace MeshCutter
             set;
         }
 
-        public bool IsBusy
-        {
-            get;
-            set;
-        }
-
         private void OnTriggerEnter (Collider other)
         {
-            if (string.Equals (other.transform.tag, "Blade"))
+            if (string.Equals (other.transform.tag, BladeTag))
             {
                 IsTouchingBlade = true;
             }
@@ -41,7 +36,7 @@ namespace MeshCutter
 
         private void OnTriggerExit (Collider other)
         {
-            if (string.Equals (other.transform.tag, "Blade"))
+            if (string.Equals (other.transform.tag, BladeTag))
             {
                 IsTouchingBlade = false;
             }

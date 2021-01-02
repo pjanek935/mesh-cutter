@@ -16,7 +16,7 @@ namespace MeshCutter
             Vector3 [] meshNormals = mesh.normals;
             Vector2 [] meshUVs = mesh.uv;
 
-            for (int i = 0; i < mesh.triangles.Length; i += 3)
+            for (int i = 0; i < meshTriangles.Length; i += 3)
             {
                 int aVertexIndex = meshTriangles [i];
                 int bVertexIndex = meshTriangles [i + 1];

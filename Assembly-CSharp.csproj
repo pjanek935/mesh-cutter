@@ -64,7 +64,6 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Assets\ParticleManager.cs" />
     <Compile Include="Assets\mesh-cutter\Scripts\CameraController.cs" />
     <Compile Include="Assets\mesh-cutter\Scripts\CutDemo.cs" />
     <Compile Include="Assets\mesh-cutter\Scripts\CutResult.cs" />
@@ -72,6 +71,7 @@
     <Compile Include="Assets\mesh-cutter\Scripts\Cutter.cs" />
     <Compile Include="Assets\mesh-cutter\Scripts\Enums.cs" />
     <Compile Include="Assets\mesh-cutter\Scripts\MeshData.cs" />
+    <Compile Include="Assets\mesh-cutter\Scripts\ParticleManager.cs" />
     <Compile Include="Assets\mesh-cutter\Scripts\Plane.cs" />
     <Compile Include="Assets\mesh-cutter\Scripts\UILineRenderer.cs" />
     <Compile Include="Assets\mesh-cutter\Scripts\VirtualKatana.cs" />
