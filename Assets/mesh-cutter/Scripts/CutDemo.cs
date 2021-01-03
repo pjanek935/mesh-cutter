@@ -12,6 +12,7 @@ namespace MeshCutter
         [SerializeField] Transform origin;
         [SerializeField] Mesh originalTatamiMesh;
         [SerializeField] ParticleManager particleManager;
+        [SerializeField] ThreadedCutter threadedCutter;
 
         [SerializeField] float torqueAfterCutRange = 0.1f;
         [SerializeField] Vector2 forceAfterCut = new Vector2 (2, 7);
@@ -80,7 +81,8 @@ namespace MeshCutter
             if (parent == null || newChild == null)
                 return false;
 
-            CutResult cutResult = Cutter.Cut (parent.GetMeshFilter ().mesh, cuttingPlane);
+            Mesh mesh = parent.GetMeshFilter ().mesh;
+            CutResult cutResult = Cutter.Cut (mesh.triangles, mesh.vertices, mesh.normals, mesh.uv, cuttingPlane);
             Mesh newOriginalMesh = cutResult.AMesh;
             Mesh childMesh = cutResult.BMesh;
 
@@ -160,6 +162,28 @@ namespace MeshCutter
                         {
                             deactivatedChildrenPool.Enqueue (newChild);
                         }
+                    }
+                }
+            }
+        }
+
+        void onCutTriggered2 (Transform planeTransform)
+        {
+            int activadedChildrenCount = activatedChildren.Count;
+
+            for (int i = 0; i < activadedChildrenCount; i++)
+            {
+                if (activatedChildren [i].IsTouchingBlade)
+                {
+                    Plane cuttingPlane = new Plane (planeTransform, activatedChildren [i].transform);
+
+                    if (deactivatedChildrenPool.Count > 0)
+                    {
+                        List<SimpleMesh> meshData = new List<SimpleMesh> ();
+                        SimpleMesh simpleMesh = new SimpleMesh ();
+                        simpleMesh.Create (activatedChildren [i].GetMeshFilter ().mesh);
+                        meshData.Add (simpleMesh);
+                        threadedCutter.Cut (meshData, cuttingPlane);
                     }
                 }
             }

@@ -5301,7 +5301,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -43.830017, y: -29.700012}
+  m_AnchoredPosition: {x: -43.830017, y: 12.799988}
   m_SizeDelta: {x: 1.5, y: 411.8655}
   m_Pivot: {x: 0.5, y: 1}
 --- !u!114 &515292605
@@ -5764,6 +5764,7 @@ GameObject:
   - component: {fileID: 963194229}
   - component: {fileID: 963194230}
   - component: {fileID: 963194231}
+  - component: {fileID: 963194232}
   m_Layer: 0
   m_Name: Main Camera
   m_TagString: MainCamera
@@ -5890,8 +5891,21 @@ MonoBehaviour:
   originalTatamiMesh: {fileID: -5495902117074765545, guid: 0e4cf0e47c81c3d4babec2d9837e7b96,
     type: 3}
   particleManager: {fileID: 340408021}
+  threadedCutter: {fileID: 963194232}
   torqueAfterCutRange: 0.1
   forceAfterCut: {x: 1, y: 0.5}
+--- !u!114 &963194232
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 963194225}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 71962b95c47ff274ab7232b8cae3cd9e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &1640598110
 GameObject:
   m_ObjectHideFlags: 0

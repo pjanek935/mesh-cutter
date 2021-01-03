@@ -5,16 +5,11 @@ namespace MeshCutter
 {
     public class Cutter
     {
-        public static CutResult Cut (Mesh mesh, Plane plane)
+        public static CutResult Cut (int [] meshTriangles, Vector3 [] meshVertives, Vector3 [] meshNormals, Vector2 [] meshUVs, Plane plane)
         {
             MeshData aMeshData = new MeshData ();
             MeshData bMeshData = new MeshData ();
             List<Vector3> sliceEdgeVertecies = new List<Vector3> ();
-
-            int [] meshTriangles = mesh.triangles;
-            Vector3 [] meshVertives = mesh.vertices;
-            Vector3 [] meshNormals = mesh.normals;
-            Vector2 [] meshUVs = mesh.uv;
 
             for (int i = 0; i < meshTriangles.Length; i += 3)
             {
