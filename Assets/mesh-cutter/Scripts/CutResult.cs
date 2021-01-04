@@ -5,25 +5,42 @@ namespace MeshCutter
 {
     public class CutResult
     {
-        public Mesh AMesh
+        public MeshData AMeshData
         {
             get;
             private set;
         }
 
-        public Mesh BMesh
+        public MeshData BMeshData
         {
             get;
             private set;
+        }
+
+        public Plane Plane
+        {
+            get;
+            set;
         }
 
         public List<Vector3> EdgeVertices = new List<Vector3> ();
 
-        public CutResult (Mesh aMesh, Mesh bMesh, List <Vector3> edgeVertices)
+        public CutResult (MeshData aMeshData, MeshData bMeshData, List <Vector3> edgeVertices, Plane plane)
         {
-            this.AMesh = aMesh;
-            this.BMesh = bMesh;
+            this.AMeshData = aMeshData;
+            this.BMeshData = bMeshData;
             this.EdgeVertices = edgeVertices;
+            this.Plane = plane;
+        }
+
+        public Mesh CreateMeshA ()
+        {
+            return AMeshData.ToMesh (EdgeVertices, 1, Plane);
+        }
+
+        public Mesh CreateMeshB ()
+        {
+            return BMeshData.ToMesh (EdgeVertices, -1, Plane);
         }
     }
 }

@@ -8,8 +8,9 @@ namespace MeshCutter
         public Vector3 [] Vertices;
         public Vector3 [] Normals;
         public Vector2 [] UVs;
+        public Plane CuttingPlane;
 
-        public void Create (Mesh mesh)
+        public void Create (Mesh mesh, Plane plane)
         {
             if (mesh != null)
             {
@@ -18,6 +19,8 @@ namespace MeshCutter
                 Normals = mesh.normals;
                 UVs = mesh.uv;
             }
+
+            CuttingPlane = plane;
         }
     }
 }
