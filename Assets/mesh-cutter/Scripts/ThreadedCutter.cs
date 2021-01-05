@@ -7,16 +7,13 @@ namespace MeshCutter
 {
     public class ThreadedCutter : MonoBehaviour
     {
-        public delegate void OnMeshCutFinishedDelegate (List <CutResult> results);
-        public event OnMeshCutFinishedDelegate OnMeshCutFinished;
-
         public bool IsBusy
         {
             get;
             private set;
         }
 
-        public bool Cut (List<SimpleMesh> meshesToCut)
+        public bool Cut (List<CutData> meshesToCut)
         {
             bool result = false;
 
@@ -30,7 +27,7 @@ namespace MeshCutter
             return result;
         }
 
-        IEnumerator proceedCut (List<SimpleMesh> simpleMeshes)
+        IEnumerator proceedCut (List<CutData> objectsToCut)
         {
             bool threadRunning = true;
             List<CutResult> cutResults = new List<CutResult> ();
@@ -38,9 +35,12 @@ namespace MeshCutter
             System.Threading.Thread thread = new System.Threading.Thread (new ThreadStart (
                    () =>
                    {
-                       foreach (SimpleMesh simpleMesh in simpleMeshes)
+                       foreach (CutData cutData in objectsToCut)
                        {
-                           cutResults.Add (Cutter.Cut (simpleMesh.Triangles, simpleMesh.Vertices, simpleMesh.Normals, simpleMesh.UVs, simpleMesh.CuttingPlane));
+                           SimpleMesh simpleMesh = cutData.SimpleMesh;
+                           CutResult cutResult = Cutter.Cut (simpleMesh.Triangles, simpleMesh.Vertices, simpleMesh.Normals, simpleMesh.UVs, simpleMesh.CuttingPlane);
+                           cutData.CutResult = cutResult;
+                           cutResults.Add (cutResult);
                        }
 
                        threadRunning = false;
@@ -50,8 +50,6 @@ namespace MeshCutter
             thread.Start ();
 
             yield return new WaitWhile (() => threadRunning);
-
-            OnMeshCutFinished?.Invoke (cutResults);
 
             IsBusy = false;
         }

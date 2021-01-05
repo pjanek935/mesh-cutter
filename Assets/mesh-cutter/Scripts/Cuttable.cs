@@ -8,6 +8,12 @@ namespace MeshCutter
         MeshFilter meshFilter = null;
         const string BladeTag = "Blade";
 
+        public bool IsBusy
+        {
+            get;
+            set;
+        }
+
         private void Awake ()
         {
             getMeshFilterIfNeeded ();

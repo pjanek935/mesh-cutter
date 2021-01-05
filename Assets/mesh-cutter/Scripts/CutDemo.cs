@@ -21,7 +21,6 @@ namespace MeshCutter
         List<Cuttable> activatedChildren = new List<Cuttable> ();
         Queue<Cuttable> deactivatedChildrenPool = new Queue<Cuttable> ();
         System.Random random = new System.Random ();
-        List<CutData> cutData = new List<CutData> ();
 
         const int childrenCount = 100;
         const string originalTatamiTag = "OriginalTatami";
@@ -45,13 +44,11 @@ namespace MeshCutter
         private void OnEnable ()
         {
             virtualKatana.OnCutTriggered += onCutTriggered;
-            threadedCutter.OnMeshCutFinished += onMeshCutFinished;
         }
 
         private void OnDisable ()
         {
             virtualKatana.OnCutTriggered -= onCutTriggered;
-            threadedCutter.OnMeshCutFinished -= onMeshCutFinished;
         }
 
         public void Reset ()
@@ -78,12 +75,80 @@ namespace MeshCutter
             }
         }
 
-        bool cut (Cuttable parent, Cuttable newChild, Plane cuttingPlane, Vector3 cutDirection)
+        void onCutTriggered (Transform planeTransform)
         {
-            bool result = false;
+            if (threadedCutter.IsBusy)
+                return;
 
-            if (parent == null || newChild == null)
-                return false;
+            List<CutData> cutData = new List<CutData> ();
+            int activadedChildrenCount = activatedChildren.Count;
+
+            for (int i = 0; i < activadedChildrenCount; i++)
+            {
+                if (activatedChildren [i].IsTouchingBlade)
+                {
+                    Plane cuttingPlane = new Plane (planeTransform, activatedChildren [i].transform);
+
+                    if (deactivatedChildrenPool.Count > 0)
+                    {
+                        CutData data = new CutData ();
+                        SimpleMesh simpleMesh = new SimpleMesh ();
+                        simpleMesh.Create (activatedChildren [i].GetMeshFilter ().mesh, cuttingPlane);
+                        data.Parent = activatedChildren [i];
+                        data.Child = deactivatedChildrenPool.Dequeue ();
+                        data.Plane = cuttingPlane;
+                        data.SimpleMesh = simpleMesh;
+                        data.CutDirection = planeTransform.right;
+
+                        cutData.Add (data);
+                        activatedChildren.Add (data.Child);
+                    }
+                }
+            }
+
+            if (cutData.Count > 0)
+            {
+                proceedCut (cutData);
+            }
+        }
+
+        void proceedCut (List<CutData> cutData)
+        {
+            foreach (CutData data in cutData)
+            {
+                data.Child.IsBusy = true;
+                data.Parent.IsBusy = true;
+            }
+
+            StartCoroutine (cutInThreadAndWaitToEnd (cutData));
+        }
+
+        IEnumerator cutInThreadAndWaitToEnd (List<CutData> cutData)
+        {
+            threadedCutter.Cut (cutData);
+
+            yield return new WaitWhile (() => threadedCutter.IsBusy);
+
+            proceedCutResult (cutData);
+        }
+
+        void proceedCutResult (List<CutData> cutData)
+        {
+            foreach (CutData data in cutData)
+            {
+                proceedCutResult (data);
+            }
+        }
+
+        void proceedCutResult (CutData cutData)
+        {
+            if (cutData == null || cutData.Parent == null || cutData.Child == null || cutData.CutResult == null)
+                return;
+
+            Cuttable parent = cutData.Parent;
+            Cuttable newChild = cutData.Child;
+            Plane cuttingPlane = cutData.Plane;
+            Vector3 cutDirection = cutData.CutDirection;
 
             Mesh mesh = parent.GetMeshFilter ().mesh;
             CutResult cutResult = Cutter.Cut (mesh.triangles, mesh.vertices, mesh.normals, mesh.uv, cuttingPlane);
@@ -132,108 +197,15 @@ namespace MeshCutter
                         (float) random.NextDouble () * torqueAfterCutRange / 2f,
                         ((float) random.NextDouble () * torqueAfterCutRange / 2f) * 0.5f), ForceMode.Impulse);
                 }
-                
+
                 if (cutResult.EdgeVertices.Count > 0)
                 {
                     Vector3 pos = cutResult.EdgeVertices [0];
                     pos = parent.transform.TransformPoint (pos);
                     particleManager.ShootParticles (pos, cutDirection);
                 }
-
-                result = true;
-            }
-
-            return result;
-        }
-
-        void onCutTriggered (Transform planeTransform)
-        {
-            int activadedChildrenCount = activatedChildren.Count;
-
-            for (int i = 0; i < activadedChildrenCount; i ++)
-            {
-                if (activatedChildren [i].IsTouchingBlade)
-                {
-                    Plane cuttingPlane = new Plane (planeTransform, activatedChildren [i].transform);
-                   
-                    if (deactivatedChildrenPool.Count > 0)
-                    {
-                        Cuttable newChild = deactivatedChildrenPool.Dequeue ();
-
-                        if (cut (activatedChildren [i], newChild, cuttingPlane, planeTransform.right))
-                        {
-                            activatedChildren.Add (newChild);
-                        }
-                        else
-                        {
-                            deactivatedChildrenPool.Enqueue (newChild);
-                        }
-                    }
-                }
             }
         }
-
-        void onCutTriggered2 (Transform planeTransform)
-        {
-            if (threadedCutter.IsBusy)
-                return;
-
-            List<CutData> data = new List<CutData> ();
-            int activadedChildrenCount = activatedChildren.Count;
-
-            for (int i = 0; i < activadedChildrenCount; i++)
-            {
-                if (activatedChildren [i].IsTouchingBlade)
-                {
-                    Plane cuttingPlane = new Plane (planeTransform, activatedChildren [i].transform);
-
-                    if (deactivatedChildrenPool.Count > 0)
-                    {
-                        
-                        //List<SimpleMesh> meshData = new List<SimpleMesh> ();
-                        SimpleMesh simpleMesh = new SimpleMesh ();
-                        simpleMesh.Create (activatedChildren [i].GetMeshFilter ().mesh, cuttingPlane);
-                        //meshData.Add (simpleMesh);
-                        //threadedCutter.Cut (meshData, cuttingPlane);
-
-                        CutData cutData = new CutData ();
-                        cutData.Parent = activatedChildren [i];
-                        cutData.Child = deactivatedChildrenPool.Dequeue ();
-                        cutData.Plane = cuttingPlane;
-                        cutData.SimpleMesh = simpleMesh;
-                        data.Add (cutData);
-                    }
-                }
-            }
-
-            if (data.Count > 0)
-            {
-                cutData = data;
-                List<SimpleMesh> meshData = new List<SimpleMesh> ();
-
-                for (int i = 0; i < data.Count; i++)
-                {
-                    meshData.Add (data [i].SimpleMesh);
-                }
-
-                threadedCutter.Cut (meshData);
-            }
-        }
-
-
-        void onMeshCutFinished (List<CutResult> results)
-        {
-            
-        }
-    }
-
-    public class CutData
-    {
-        public Cuttable Parent;
-        public Cuttable Child;
-        public Plane Plane;
-        public SimpleMesh SimpleMesh;
-
     }
 }
 

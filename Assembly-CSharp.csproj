@@ -65,6 +65,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Assets\mesh-cutter\Scripts\CameraController.cs" />
+    <Compile Include="Assets\mesh-cutter\Scripts\CutData.cs" />
     <Compile Include="Assets\mesh-cutter\Scripts\CutDemo.cs" />
     <Compile Include="Assets\mesh-cutter\Scripts\CutResult.cs" />
     <Compile Include="Assets\mesh-cutter\Scripts\Cuttable.cs" />
