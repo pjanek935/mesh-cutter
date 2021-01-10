@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System.Collections;
+using UnityEngine;
 
 namespace MeshCutter
 {
@@ -15,6 +16,24 @@ namespace MeshCutter
 
         bool isMouseDown;
         Vector3 startMousePos = Vector3.zero;
+        bool requestCut = false;
+
+        private void FixedUpdate ()
+        {
+            if (requestCut)
+            {
+                requestCut = false;
+                StartCoroutine (proceedFireEvent ());//wait to the next frame
+            }
+        }
+
+        IEnumerator proceedFireEvent ()
+        {
+            yield return new WaitForEndOfFrame ();
+            yield return new WaitForEndOfFrame ();
+
+            OnCutTriggered?.Invoke (cuttingPlane);
+        }
 
         private void Update ()
         {
@@ -49,7 +68,8 @@ namespace MeshCutter
                     cuttingPlane.position = (camera.ScreenToWorldPoint (Input.mousePosition) + camera.ScreenToWorldPoint (startMousePos)) / 2f;
                     cuttingPlane.localScale = new Vector3 (dist / 1000f, 0.01f, 5);
 
-                    OnCutTriggered?.Invoke (cuttingPlane);
+                    requestCut = true; //event should be fired after all the coliders have a chance to update IsTouchingBlade value
+                    //so its pushed to the FixedUpdate method
                 }
             }
         }

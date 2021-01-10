@@ -85,42 +85,31 @@ namespace MeshCutter
 
             for (int i = 0; i < activadedChildrenCount; i++)
             {
-                if (activatedChildren [i].IsTouchingBlade)
+                if (activatedChildren [i].IsTouchingBlade && deactivatedChildrenPool.Count > 0)
                 {
                     Plane cuttingPlane = new Plane (planeTransform, activatedChildren [i].transform);
+                    CutData data = new CutData ();
+                    SimpleMesh simpleMesh = new SimpleMesh ();
 
-                    if (deactivatedChildrenPool.Count > 0)
-                    {
-                        CutData data = new CutData ();
-                        SimpleMesh simpleMesh = new SimpleMesh ();
-                        simpleMesh.Create (activatedChildren [i].GetMeshFilter ().mesh, cuttingPlane);
-                        data.Parent = activatedChildren [i];
-                        data.Child = deactivatedChildrenPool.Dequeue ();
-                        data.Plane = cuttingPlane;
-                        data.SimpleMesh = simpleMesh;
-                        data.CutDirection = planeTransform.right;
+                    simpleMesh.Create (activatedChildren [i].GetMeshFilter ().mesh, cuttingPlane);
+                    data.Parent = activatedChildren [i];
+                    data.Child = deactivatedChildrenPool.Dequeue ();
+                    data.Plane = cuttingPlane;
+                    data.SimpleMesh = simpleMesh;
+                    data.CutDirection = planeTransform.right;
 
-                        cutData.Add (data);
-                        activatedChildren.Add (data.Child);
-                    }
+                    cutData.Add (data);
+                    activatedChildren.Add (data.Child);
+
+                    data.Parent.IsBusy = true;
+                    data.Child.IsBusy = true;
                 }
             }
 
             if (cutData.Count > 0)
             {
-                proceedCut (cutData);
+                StartCoroutine (cutInThreadAndWaitToEnd (cutData));
             }
-        }
-
-        void proceedCut (List<CutData> cutData)
-        {
-            foreach (CutData data in cutData)
-            {
-                data.Child.IsBusy = true;
-                data.Parent.IsBusy = true;
-            }
-
-            StartCoroutine (cutInThreadAndWaitToEnd (cutData));
         }
 
         IEnumerator cutInThreadAndWaitToEnd (List<CutData> cutData)
@@ -129,10 +118,10 @@ namespace MeshCutter
 
             yield return new WaitWhile (() => threadedCutter.IsBusy);
 
-            proceedCutResult (cutData);
+            processCutResult (cutData);
         }
 
-        void proceedCutResult (List<CutData> cutData)
+        void processCutResult (List<CutData> cutData)
         {
             foreach (CutData data in cutData)
             {
@@ -146,7 +135,7 @@ namespace MeshCutter
                 return;
 
             Cuttable parent = cutData.Parent;
-            Cuttable newChild = cutData.Child;
+            Cuttable child = cutData.Child;
             Plane cuttingPlane = cutData.Plane;
             Vector3 cutDirection = cutData.CutDirection;
 
@@ -154,55 +143,76 @@ namespace MeshCutter
             CutResult cutResult = Cutter.Cut (mesh.triangles, mesh.vertices, mesh.normals, mesh.uv, cuttingPlane);
             Mesh aMesh = cutResult.CreateMeshA ();
             Mesh bMesh = cutResult.CreateMeshB ();
-            Mesh newOriginalMesh = aMesh;
-            Mesh childMesh = bMesh;
+            Mesh newParentMesh = aMesh;
+            Mesh newChildMesh = bMesh;
 
-            if (newOriginalMesh.vertexCount > 0 && childMesh.vertexCount > 0)
+            if (newParentMesh.vertexCount > 0 && newChildMesh.vertexCount > 0)
             {
-                bool isOriginalTatami = string.Equals (parent.tag, originalTatamiTag);
+                //original object base should stay in place so I switch meshes position in case
+                //bMesh is closer to an origin point
+                flipMeshesPositionIfNeeded (ref newParentMesh, ref newChildMesh, parent.transform);
 
-                if (isOriginalTatami)
-                {
-                    Vector3 aPos = parent.transform.TransformPoint (aMesh.vertices [0]);
-                    Vector3 bPos = parent.transform.TransformPoint (bMesh.vertices [0]);
-                    float aD = Vector3.Distance (origin.position, aPos);
-                    float bD = Vector3.Distance (origin.position, bPos);
+                parent.SetNewMesh (newParentMesh);
+                child.SetNewMesh (newChildMesh);
 
-                    if (bD < aD)
-                    {
-                        newOriginalMesh = bMesh;
-                        childMesh = aMesh;
-                    }
-                }
+                //set mesh and position for child
+                child.transform.position = parent.transform.position;
+                child.transform.rotation = parent.transform.rotation;
+                child.transform.localScale = parent.transform.localScale;
+                child.GetMeshFilter ().mesh = newChildMesh;
+                child.gameObject.SetActive (true);
 
-                parent.GetMeshFilter ().mesh = newOriginalMesh;
-                MeshCollider meshCollider = parent.GetComponent<MeshCollider> ();
-                meshCollider.sharedMesh = newOriginalMesh;
+                //add torque and force to child object
+                Rigidbody rb = child.GetComponent<Rigidbody> ();
+                addForceAndTorqueToAChildObject (rb, cutDirection);
 
-                newChild.transform.position = parent.transform.position;
-                newChild.transform.rotation = parent.transform.rotation;
-                newChild.transform.localScale = parent.transform.localScale;
-                newChild.GetMeshFilter ().mesh = childMesh;
-                meshCollider = newChild.GetComponent<MeshCollider> ();
-                meshCollider.convex = true;
-                meshCollider.sharedMesh = childMesh;
-                newChild.gameObject.SetActive (true);
-                Rigidbody rb = newChild.GetComponent<Rigidbody> ();
-
-                if (rb != null)
-                {
-                    Vector3 forceVector = Vector3.up * forceAfterCut.y + cutDirection.normalized * forceAfterCut.x;
-                    rb.AddForce (forceVector, ForceMode.Impulse);
-                    rb.AddTorque (new Vector3 ((float) random.NextDouble () * torqueAfterCutRange / 2f,
-                        (float) random.NextDouble () * torqueAfterCutRange / 2f,
-                        ((float) random.NextDouble () * torqueAfterCutRange / 2f) * 0.5f), ForceMode.Impulse);
-                }
-
+                //shoot particles
                 if (cutResult.EdgeVertices.Count > 0)
                 {
                     Vector3 pos = cutResult.EdgeVertices [0];
                     pos = parent.transform.TransformPoint (pos);
                     particleManager.ShootParticles (pos, cutDirection);
+                }
+            }
+
+            parent.IsBusy = false;
+            child.IsBusy = false;
+        }
+
+        void addForceAndTorqueToAChildObject (Rigidbody rb, Vector3 cutDirection)
+        {
+            if (rb == null)
+                return;
+
+            Vector3 forceVector = Vector3.up * forceAfterCut.y + cutDirection.normalized * forceAfterCut.x;
+            rb.AddForce (forceVector, ForceMode.Impulse);
+            rb.AddTorque (new Vector3 ((float) random.NextDouble () * torqueAfterCutRange / 2f,
+                (float) random.NextDouble () * torqueAfterCutRange / 2f,
+                ((float) random.NextDouble () * torqueAfterCutRange / 2f) * 0.5f), ForceMode.Impulse);
+        }
+
+        /// <summary>
+        /// Flips given aMesh and bMesh based on distance from an origin point.
+        /// </summary>
+        /// <param name="aMesh"></param>
+        /// <param name="bMesh"></param>
+        /// <param name="parentTransform"></param>
+        void flipMeshesPositionIfNeeded (ref Mesh aMesh, ref Mesh bMesh, Transform parentTransform)
+        {
+            bool isOriginalTatami = string.Equals (parentTransform.tag, originalTatamiTag);
+
+            if (isOriginalTatami)
+            {
+                Vector3 aPos = parentTransform.TransformPoint (aMesh.vertices [0]);
+                Vector3 bPos = parentTransform.TransformPoint (bMesh.vertices [0]);
+                float aD = Vector3.Distance (origin.position, aPos);
+                float bD = Vector3.Distance (origin.position, bPos);
+
+                if (bD < aD)
+                {
+                    Mesh tmp = aMesh;
+                    aMesh = bMesh;
+                    bMesh = tmp;
                 }
             }
         }

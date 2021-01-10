@@ -26,11 +26,7 @@ namespace MeshCutter
             return meshFilter;
         }
 
-        public bool IsTouchingBlade
-        {
-            get;
-            set;
-        }
+        public bool IsTouchingBlade;
 
         private void OnTriggerEnter (Collider other)
         {
@@ -45,6 +41,19 @@ namespace MeshCutter
             if (string.Equals (other.transform.tag, BladeTag))
             {
                 IsTouchingBlade = false;
+            }
+        }
+
+        public void SetNewMesh (Mesh mesh)
+        {
+            getMeshFilterIfNeeded ();
+            meshFilter.mesh = mesh;
+
+            MeshCollider meshCollider = GetComponent<MeshCollider> ();
+
+            if (meshCollider != null)
+            {
+                meshCollider.sharedMesh = mesh;
             }
         }
 
