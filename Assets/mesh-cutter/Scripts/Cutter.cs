@@ -201,7 +201,7 @@ namespace MeshCutter
 
             if (addUV)
             {
-                acUV = Vector2.Lerp (originalMeshUVs [aPositiveIndex], originalMeshUVs [cNegativeIndex], acD * 4.54f);
+                acUV = Vector2.Lerp (originalMeshUVs [aPositiveIndex], originalMeshUVs [cNegativeIndex], acD);
             }
 
             Vector3 bcNormal = Vector3.Lerp (originalMeshNormals [bPositiveIndex], originalMeshNormals [cNegativeIndex], bcD);
@@ -209,7 +209,7 @@ namespace MeshCutter
 
             if (addUV)
             {
-                bcUV = Vector3.Lerp (originalMeshUVs [bPositiveIndex], originalMeshUVs [cNegativeIndex], bcD * 4.54f);
+                bcUV = Vector2.Lerp (originalMeshUVs [bPositiveIndex], originalMeshUVs [cNegativeIndex], bcD);
             }
            
             sliceEdgeVertices.Add (acIntersection);
@@ -251,7 +251,7 @@ namespace MeshCutter
 
             if (addUV)
             {
-                abUV = Vector3.Lerp (originalMeshUVs [aPositiveIndex], originalMeshUVs [bNegativeIndex], abD * 4.54f) ;
+                abUV = Vector2.Lerp (originalMeshUVs [aPositiveIndex], originalMeshUVs [bNegativeIndex], abD);
             }
 
             Vector3 acNormal = Vector3.Lerp (originalMeshNormals [aPositiveIndex], originalMeshNormals [cNegativeIndex], acD);
@@ -259,7 +259,7 @@ namespace MeshCutter
             
             if (addUV)
             {
-                acUV = Vector3.Lerp (originalMeshUVs [aPositiveIndex], originalMeshUVs [cNegativeIndex], acD * 4.54f);
+                acUV = Vector2.Lerp (originalMeshUVs [aPositiveIndex], originalMeshUVs [cNegativeIndex], acD);
             }
 
             sliceEdgeVertecies.Add (acIntersection);
@@ -297,7 +297,7 @@ namespace MeshCutter
 
             if (addUV)
             {
-                bcUV = Vector3.Lerp (originalMeshUVs [bPositiveIndex], originalMeshUVs [cNegativeIndex], bcD);
+                bcUV = Vector2.Lerp (originalMeshUVs [bPositiveIndex], originalMeshUVs [cNegativeIndex], bcD);
             }
 
             sliceEdgeVertecies.Add (originalMeshVertices [aOnPlaneIndex]);
@@ -331,7 +331,7 @@ namespace MeshCutter
 
             if (addUV)
             {
-                bcUV = Vector3.Lerp (orignalMeshUVs [bNegativeIndex], orignalMeshUVs [cPositiveIndex], bcD);
+                bcUV = Vector2.Lerp (orignalMeshUVs [bNegativeIndex], orignalMeshUVs [cPositiveIndex], bcD);
             }
 
             sliceEdgeVertecies.Add (bcIntersection);
@@ -352,7 +352,7 @@ namespace MeshCutter
         }
 
         /// <summary>
-        /// D is a normalized distance between lineStart and lineEnd
+        /// D is a normalized distance between lineStart and intersection point
         /// </summary>
         /// <param name="plane"></param>
         /// <param name="lineStart"></param>
@@ -364,8 +364,10 @@ namespace MeshCutter
             Vector3 lineDirection = lineEnd - lineStart;
             lineDirection.Normalize ();
             d = Vector3.Dot (plane.Origin - lineStart, plane.Normal) / Vector3.Dot (lineDirection, plane.Normal);
+            Vector3 result = lineStart + lineDirection * d;
+            d /= Vector3.Distance (lineStart, lineEnd); //normalizing distance
 
-            return lineStart + lineDirection * d;
+            return result;
         }
     }
 }
