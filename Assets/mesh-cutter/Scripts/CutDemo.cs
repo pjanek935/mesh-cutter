@@ -22,8 +22,11 @@ namespace MeshCutter
         Queue<Cuttable> deactivatedChildrenPool = new Queue<Cuttable> ();
         System.Random random = new System.Random ();
 
-        const int childrenCount = 100;
+        const int childrenCount = 50;
         const string originalTatamiTag = "OriginalTatami";
+
+        Vector3 defaultPosition;
+        Quaternion defaultRotation;
 
         void initChildren ()
         {
@@ -37,6 +40,8 @@ namespace MeshCutter
 
         private void Awake ()
         {
+            defaultPosition = originalObjectToCut.transform.position;
+            defaultRotation = originalObjectToCut.transform.rotation;
             initChildren ();
             activatedChildren.Add (originalObjectToCut);
         }
@@ -65,6 +70,9 @@ namespace MeshCutter
             originalObjectToCut.GetComponent<MeshFilter> ().mesh = originalTatamiMesh;
             originalObjectToCut.GetComponent<MeshCollider> ().sharedMesh = originalTatamiMesh;
             activatedChildren.Add (originalObjectToCut);
+
+            originalObjectToCut.transform.rotation = defaultRotation;
+            originalObjectToCut.transform.position = defaultPosition;
         }
 
         private void Update ()
@@ -99,7 +107,6 @@ namespace MeshCutter
                     data.CutDirection = planeTransform.right;
 
                     cutData.Add (data);
-                    activatedChildren.Add (data.Child);
 
                     data.Parent.IsBusy = true;
                     data.Child.IsBusy = true;
@@ -132,7 +139,9 @@ namespace MeshCutter
         void proceedCutResult (CutData cutData)
         {
             if (cutData == null || cutData.Parent == null || cutData.Child == null || cutData.CutResult == null)
+            {
                 return;
+            } 
 
             Cuttable parent = cutData.Parent;
             Cuttable child = cutData.Child;
@@ -140,7 +149,7 @@ namespace MeshCutter
             Vector3 cutDirection = cutData.CutDirection;
 
             Mesh mesh = parent.GetMeshFilter ().mesh;
-            CutResult cutResult = Cutter.Cut (mesh.triangles, mesh.vertices, mesh.normals, mesh.uv, cuttingPlane);
+            CutResult cutResult = cutData.CutResult;
             Mesh aMesh = cutResult.CreateMeshA ();
             Mesh bMesh = cutResult.CreateMeshB ();
             Mesh newParentMesh = aMesh;
@@ -161,6 +170,7 @@ namespace MeshCutter
                 child.transform.localScale = parent.transform.localScale;
                 child.GetMeshFilter ().mesh = newChildMesh;
                 child.gameObject.SetActive (true);
+                activatedChildren.Add (child);
 
                 //add torque and force to child object
                 Rigidbody rb = child.GetComponent<Rigidbody> ();
@@ -173,6 +183,11 @@ namespace MeshCutter
                     pos = parent.transform.TransformPoint (pos);
                     particleManager.ShootParticles (pos, cutDirection);
                 }
+            }
+            else
+            {
+                child.gameObject.SetActive (false);
+                deactivatedChildrenPool.Enqueue (child);
             }
 
             parent.IsBusy = false;

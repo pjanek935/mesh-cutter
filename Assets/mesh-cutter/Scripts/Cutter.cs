@@ -187,14 +187,24 @@ namespace MeshCutter
             Plane plane, int aPositiveIndex, int bPositiveIndex, int cNegativeIndex, List <Vector3> sliceEdgeVertices)
         {
             bool addUV = originalMeshUVs.Length > 0;
-
+            bool intersectionSuccess = false;
             float acD; //normalized distance between A and C
             Vector3 acIntersection = getPlaneIntersectionPoint (plane, originalMeshVertices [aPositiveIndex],
-                originalMeshVertices [cNegativeIndex], out acD);
+                originalMeshVertices [cNegativeIndex], out acD, out intersectionSuccess);
+
+            if (! intersectionSuccess)
+            {
+                return;
+            }
 
             float bcD;
             Vector3 bcIntersection = getPlaneIntersectionPoint (plane, originalMeshVertices [bPositiveIndex],
-                originalMeshVertices [cNegativeIndex], out bcD);
+                originalMeshVertices [cNegativeIndex], out bcD, out intersectionSuccess);
+
+            if (! intersectionSuccess)
+            {
+                return;
+            }
 
             Vector3 acNormal = Vector3.Lerp (originalMeshNormals [aPositiveIndex], originalMeshNormals [cNegativeIndex], acD);
             Vector2 acUV = Vector2.zero;
@@ -214,6 +224,11 @@ namespace MeshCutter
            
             sliceEdgeVertices.Add (acIntersection);
             sliceEdgeVertices.Add (bcIntersection);
+
+            if (IsNaN (acIntersection) || IsNaN (bcIntersection))
+            {
+                Debug.Log ("nan!");
+            }
 
             aMeshData.Add (originalMeshVertices [aPositiveIndex],
                 originalMeshNormals [aPositiveIndex], addUV ? originalMeshUVs [aPositiveIndex] : Vector2.zero);
@@ -237,14 +252,24 @@ namespace MeshCutter
             Plane plane, int aPositiveIndex, int bNegativeIndex, int cNegativeIndex, List <Vector3> sliceEdgeVertecies)
         {
             bool addUV = originalMeshUVs.Length > 0;
-
+            bool intersectionSuccess;
             float abD; //normalized distance between A and B
             Vector3 abIntersection = getPlaneIntersectionPoint (plane, originalMeshVertices [aPositiveIndex],
-                originalMeshVertices [bNegativeIndex], out abD);
+                originalMeshVertices [bNegativeIndex], out abD, out intersectionSuccess);
+
+            if (! intersectionSuccess)
+            {
+                return;
+            }
 
             float acD;
             Vector3 acIntersection = getPlaneIntersectionPoint (plane, originalMeshVertices [aPositiveIndex],
-                originalMeshVertices [cNegativeIndex], out acD);
+                originalMeshVertices [cNegativeIndex], out acD, out intersectionSuccess);
+
+            if (! intersectionSuccess)
+            {
+                return;
+            }
 
             Vector3 abNormal = Vector3.Lerp (originalMeshNormals [aPositiveIndex], originalMeshNormals [bNegativeIndex], abD);
             Vector2 abUV = Vector2.zero;
@@ -264,6 +289,11 @@ namespace MeshCutter
 
             sliceEdgeVertecies.Add (acIntersection);
             sliceEdgeVertecies.Add (abIntersection);
+
+            if (IsNaN (abIntersection) || IsNaN (acIntersection))
+            {
+                Debug.Log ("nan!");
+            }
 
             aMeshData.Add (originalMeshVertices [aPositiveIndex],
                 originalMeshNormals [aPositiveIndex], addUV ? originalMeshUVs [aPositiveIndex] : Vector2.zero);
@@ -287,10 +317,16 @@ namespace MeshCutter
             Plane plane, int aOnPlaneIndex, int bPositiveIndex, int cNegativeIndex, List<Vector3> sliceEdgeVertecies)
         {
             bool addUV = originalMeshUVs.Length > 0;
+            bool intersectionSuccess;
 
             float bcD; //normalized distance between B and C
             Vector3 bcIntersection = getPlaneIntersectionPoint (plane, originalMeshVertices [bPositiveIndex],
-                originalMeshVertices [cNegativeIndex], out bcD);
+                originalMeshVertices [cNegativeIndex], out bcD, out intersectionSuccess);
+
+            if (! intersectionSuccess)
+            {
+                return;
+            }
 
             Vector3 bcNormal = Vector3.Lerp (originalMeshNormals [bPositiveIndex], originalMeshNormals [cNegativeIndex], bcD);
             Vector2 bcUV = Vector2.zero;
@@ -302,6 +338,11 @@ namespace MeshCutter
 
             sliceEdgeVertecies.Add (originalMeshVertices [aOnPlaneIndex]);
             sliceEdgeVertecies.Add (bcIntersection);
+
+            if (IsNaN (bcIntersection))
+            {
+                Debug.Log ("nan!");
+            }
 
             aMeshData.Add (originalMeshVertices [aOnPlaneIndex],
                originalMeshNormals [aOnPlaneIndex], addUV ? originalMeshUVs [aOnPlaneIndex] : Vector2.zero);
@@ -321,10 +362,16 @@ namespace MeshCutter
             Plane plane, int aOnPlaneIndex, int bNegativeIndex, int cPositiveIndex, List<Vector3> sliceEdgeVertecies)
         {
             bool addUV = orignalMeshUVs.Length > 0;
+            bool intersectionSuccess;
 
             float bcD; //normalized distance between B and C
             Vector3 bcIntersection = getPlaneIntersectionPoint (plane, originalMeshVertices [bNegativeIndex],
-                originalMeshVertices [cPositiveIndex], out bcD);
+                originalMeshVertices [cPositiveIndex], out bcD, out intersectionSuccess);
+
+            if (! intersectionSuccess)
+            {
+                return;
+            }
 
             Vector3 bcNormal = Vector3.Lerp (originalMeshNormals [bNegativeIndex], originalMeshNormals [cPositiveIndex], bcD);
             Vector2 bcUV = Vector2.zero;
@@ -336,6 +383,11 @@ namespace MeshCutter
 
             sliceEdgeVertecies.Add (bcIntersection);
             sliceEdgeVertecies.Add (originalMeshVertices [aOnPlaneIndex]);
+
+            if (IsNaN (bcIntersection))
+            {
+                Debug.Log ("nan!");
+            }
 
             aMeshData.Add (originalMeshVertices [cPositiveIndex],
                originalMeshNormals [cPositiveIndex], addUV ? orignalMeshUVs [cPositiveIndex] : Vector2.zero);
@@ -359,16 +411,32 @@ namespace MeshCutter
         /// <param name="lineEnd"></param>
         /// <param name="d"></param>
         /// <returns></returns>
-        static Vector3 getPlaneIntersectionPoint (Plane plane, Vector3 lineStart, Vector3 lineEnd, out float d)
+        static Vector3 getPlaneIntersectionPoint (Plane plane, Vector3 lineStart, Vector3 lineEnd, out float d, out bool success)
         {
+            success = true;
             Vector3 lineDirection = lineEnd - lineStart;
             lineDirection.Normalize ();
             d = Vector3.Dot (plane.Origin - lineStart, plane.Normal) / Vector3.Dot (lineDirection, plane.Normal);
-            Vector3 result = lineStart + lineDirection * d;
-            d /= Vector3.Distance (lineStart, lineEnd); //normalizing distance
+            Vector3 result = Vector3.zero;
+
+            if (float.IsNaN (d) || float.IsInfinity (d))
+            {
+                success = false;
+            }
+            else
+            {
+                result = lineStart + lineDirection * d;
+                d /= Vector3.Distance (lineStart, lineEnd); //normalizing distance
+            }
 
             return result;
         }
+
+        public static bool IsNaN (Vector3 vector3)
+        {
+            return float.IsNaN (vector3.x) || float.IsNaN (vector3.y) || float.IsNaN (vector3.z);
+        }
+
     }
 }
 

@@ -70,6 +70,11 @@ namespace MeshCutter
 
             for (int i = 0; i < edgeVertecies.Count; i += 2)
             {
+                if (float.IsNaN (edgeVertecies [i].x) || float.IsNaN (edgeVertecies [i].y) || float.IsNaN (edgeVertecies [i].z))
+                {
+                    continue;
+                }
+
                 vertices.Add (edgeVertecies [i]);
                 normals.Add (normal);
                 UVs.Add (Vector3.zero);
